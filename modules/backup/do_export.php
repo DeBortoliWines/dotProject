@@ -55,6 +55,26 @@ foreach($tasks as $task ){
     $project_xml->Tasks->Task[$i]->Duration=$taskObj->task_duration;
     $project_xml->Tasks->Task[$i]->Milestone=$taskObj->task_milestone;
     $project_xml->Tasks->Task[$i]->PercentComplete=$taskObj->task_percent_complete;
+	$project_xml->Tasks->Task[$i]->Priority=$taskObj->task_priority;
+	$project_xml->Tasks->Task[$i]->Cost= $taskObj->task_target_budget;
+	
+	
+	
+	$sql="SELECT dependencies_req_task_id FROM dotp_task_dependencies where dependencies_task_id=". $task['task_id'];
+	$dependencies = db_loadList($sql);
+	$j=0;
+	foreach($dependencies as $dep){
+		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->PredecessorUID= $dep["dependencies_req_task_id"];
+		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->Type="FS";
+		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->CrossProject="0";
+		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->LinkLag="0";
+		$j++;
+	}
+	
+	$user = new  CUser();
+	$user->load($taskObj->task_owner);
+	$project_xml->Tasks->Task[$i]->Contact= $user->user_username;
+	
     $i++;
 }
 // Saving the whole modified XML to a new filename
