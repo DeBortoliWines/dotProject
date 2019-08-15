@@ -30,6 +30,7 @@
     //print_r($project);
     //$project->store(); 
     $ret = db_insertObject('projects', $project, 'project_id');
+	$mappedIds= array();
     foreach( $project_xml->Tasks->Task as $task){
         $taskObj=new CTask();
        
@@ -40,9 +41,29 @@
         $taskObj->task_duration = $task->Duration."";
         $taskObj->task_milestone = $task->Milestone."";
         $taskObj->task_percent_complete = $task->PercentComplete."";
+		$taskObj->task_priority = $task->PercentComplete."";
+		$taskObj->task_target_budget = $task->Cost ."";
+		//$taskObj->task_owner=$task->Contact ."";
+		
        db_insertObject('tasks', $taskObj, 'task_id');
+	   //echo "New id:". $taskObj->task_id;
+	   $mappedIds[$task->ID.""]= $taskObj->task_id;
       // echo $taskObj->task_name;
     }
+	
+	//update dependencies
+	foreach( $project_xml->Tasks->Task as $task){
+		$taskNewId=$mappedIds[$task->ID.""];
+		foreach ($task->PredecessorLink as $predecessor){
+			$precessorNewId= $mappedIds[$predecessor->PredecessorUID.""];			
+			$q = new DBQuery();
+			$q->addTable('task_dependencies');
+			$q->addInsert('dependencies_task_id', $taskNewId);
+			$q->addInsert('dependencies_req_task_id', $precessorNewId);
+			$q->exec();
+			$q->clear();
+		}
+	}
     //echo "id: ".$project->project_id;
     echo $AppUI->_('Project imported!');
     ?>
