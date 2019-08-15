@@ -62,6 +62,7 @@ foreach($tasks as $task ){
 	
 	$sql="SELECT dependencies_req_task_id FROM dotp_task_dependencies where dependencies_task_id=". $task['task_id'];
 	$dependencies = db_loadList($sql);
+	
 	$j=0;
 	foreach($dependencies as $dep){
 		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->PredecessorUID= $dep["dependencies_req_task_id"];
