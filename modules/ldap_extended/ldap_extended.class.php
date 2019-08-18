@@ -412,8 +412,8 @@ class CLDAPExtended extends CDpObject {
 	}
 	
 	public function addRoleToUser($user_name, $role_name){
-	
-		global $AppUI,$debugMode;
+		
+		global $AppUI,$debugMode,$dPconfig;
 		//SELECT group_id, aro_id FROM dotproject_ldap.dotp_gacl_groups_aro_map;
 		//SELECT id, name FROM dotproject_ldap.dotp_gacl_aro;
 		//SELECT id,name,value FROM dotproject_ldap.dotp_gacl_aro_groups;
@@ -426,11 +426,21 @@ class CLDAPExtended extends CDpObject {
 			if($debugMode){
 				echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
 			}
+		
 			$defaultPermissions=$dPconfig['ldap_template_role_for_copy_permissions'];
+			//echo "defaultValue:".$defaultPermissions;
+			//die();
 			if($defaultPermissions==null || $defaultPermissions==""){
-				$defaultPermissions="normal";
+				//$defaultPermissions="normal";
+				$msg="No default role configured on dotProject System Configuration";
+				$_SESSION["error_msg"]=$msg;
+				//echo "No default role set!!";
+			    return false;
+			}else{
+				$this->copyRolePermissions($role_name,$defaultPermissions);
 			}
-			$this->copyRolePermissions($role_name,$defaultPermissions);
+			
+			
 		}
 		 
 			
