@@ -126,7 +126,10 @@ if (isset($_REQUEST['login'])) {
 		$AppUI->setMsg('Login Failed');
 	} else {
 		//Register login in user_acces_log
+		require_once DP_BASE_DIR ."/modules/ldap_extended/run_synchronization.php";
+		//die("Run synchronization");
 		$AppUI->registerLogin();
+		
 	}
 	addHistory('login', $AppUI->user_id, 'login', 
 	           ($AppUI->user_first_name . ' ' . $AppUI->user_last_name));
@@ -146,6 +149,7 @@ $u = '';
 
 // check if we are logged in
 if ($AppUI->doLogin()) {
+	
 	// load basic locale settings
 	$AppUI->setUserLocale();
 	@include_once('./locales/' . $AppUI->user_locale . '/locales.php');
