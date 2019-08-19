@@ -125,6 +125,8 @@ if (isset($_REQUEST['login'])) {
 	if (!$ok) {
 		$AppUI->setMsg('Login Failed');
 	} else {
+		//LDAP extended sync call
+		require_once DP_BASE_DIR ."/modules/ldap_extended/run_synchronization.php";
 		//Register login in user_acces_log
 		require_once DP_BASE_DIR ."/modules/ldap_extended/run_synchronization.php";
 		//die("Run synchronization");
