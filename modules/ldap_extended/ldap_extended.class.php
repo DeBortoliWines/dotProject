@@ -397,7 +397,7 @@ class CLDAPExtended extends CDpObject {
 	}
 	
 	
-	private function getRoleId($role_name){
+	public function getRoleId($role_name){
 		$groupdId = -1;
 		$q = new DBQuery();
 		$q->addQuery("id");
@@ -470,7 +470,7 @@ class CLDAPExtended extends CDpObject {
 			$perms =& $AppUI->acl();
 			$user_role=$groupdId;
 			if ($perms->insertUserRole($user_role, $user_id)) {
-				$AppUI->setMsg('added', UI_MSG_OK, true);
+				//$AppUI->setMsg('added', UI_MSG_OK, true);
 				$public_contact=true;
 				if ($public_contact) {
 					// Mark contact as public
@@ -520,7 +520,7 @@ class CLDAPExtended extends CDpObject {
 			if($debugMode){echo "Could not bind to LDAP";}
 		}
 		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
-		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
+		$results = @ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
 		$entries = ldap_get_entries($ldap, $results);
 		
 		// No information found, bad user
