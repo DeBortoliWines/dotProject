@@ -520,9 +520,12 @@ class CLDAPExtended extends CDpObject {
 			if($debugMode){echo "Could not bind to LDAP";}
 		}
 		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
-		$results = @ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
-		$entries = ldap_get_entries($ldap, $results);
-		
+		try{
+			$results = @ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
+			$entries = @ldap_get_entries($ldap, $results);
+		}catch(Exception $e){
+			
+		}
 		// No information found, bad user
 		//print_r($entries);
 		if($entries['count'] == 0){
