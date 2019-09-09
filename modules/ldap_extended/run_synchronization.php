@@ -1,6 +1,6 @@
 <?php
 global $dPconfig, $AppUI;
-$syncType=$dPconfig['ldap_variable_for_retrieve_roles_list'];
+$syncType="memberof";//$dPconfig['ldap_variable_for_retrieve_roles_list'];////groupmembership//
 $runEnabled=$dPconfig['ldap_enable_role_creation'];
 
 $debugMode=false;
@@ -15,7 +15,7 @@ $defaultRolePermissions=$dPconfig['ldap_template_role_for_copy_permissions'];
 $groupdId=$ldapExt->getRoleId($defaultRolePermissions);
 if($groupdId==-1){
 	$defaultRolePermissions=$defaultRolePermissions==""?"empty":$defaultRolePermissions;
-	$AppUI->setMsg($AppUI->_("The template role for copy permissions ($defaultRolePermissions) does not exists on dotProject."), UI_MSG_ERROR, true);
+	$AppUI->setMsg($AppUI->_("LDAP Extended: The template role for copy permissions ($defaultRolePermissions) does not exists on dotProject."), UI_MSG_ERROR, true);
 	$AppUI->redirect();
 }else{
 	if(strtolower($runEnabled) == "true" || strtolower($runEnabled) == 1 ){ 
