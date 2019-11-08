@@ -1,5 +1,4 @@
 // $Id$
-var calendarField = '';
 var calWin = null;
 
 function setMilestoneEndDate(checked){
@@ -60,33 +59,6 @@ function setTasksStartDate(form, datesForm) {
 
 function popContacts() {
 	window.open('?m=public&'+'a=contact_selector&'+'dialog=1&'+'call_back=setContacts&'+'selected_contacts_id='+selected_contacts_id, 'contacts','height=600,width=400,resizable,scrollbars=yes');
-}
-
-function popCalendar(field){
-	calendarField = field;
-	task_cal = document.getElementById('task_' + field.name);
-	idate = task_cal.value;
-	window.open('?m=public&'+'a=calendar&'+'dialog=1&'+'callback=setCalendar&'+'date=' + idate, 'calwin', 'top=250,left=250,width=251, height=220, scrollbars=no, status=no');
-}
-
-/**
- *	@param string Input date in the format YYYYMMDD
- *	@param string Formatted date
- */
-function setCalendar(idate, fdate) {
-	fld_date = document.getElementById('task_' + calendarField.name);
-	calendarField.value = fdate;
-	fld_date.value = idate;
-
-	// set end date automatically with start date if start date is after end date
-	e_date = document.getElementById('task_' + 'end_date');
-	e_fdate = document.getElementById('end_date');
-	if (calendarField.name == 'start_date') {
-		if(e_date.value < idate) {
-			e_date.value = idate;
-			e_fdate.value = fdate;
-		}
-	}
 }
 
 function setContacts(contact_id_string){
@@ -567,13 +539,18 @@ function checkDates(form, id) {
 			}
 			return false;
 		}
+		if (!form.task_start_date.checkValidity()) {
+			alert(task_start_msg);
+			return false;
+		}
+		if (!form.task_end_date.checkValidity()) {
+			alert(task_end_msg);
+			return false;
+		}
 		//check if the start date is > then end date
-		var int_st_date = new String(form.task_start_date.value + form.start_hour.value + form.start_minute.value);
-		var int_en_date = new String(form.task_end_date.value + form.end_hour.value + form.end_minute.value);
-
-		var s = Date.UTC(int_st_date.substring(0,4),(int_st_date.substring(4,6)-1),int_st_date.substring(6,8), int_st_date.substring(8,10), int_st_date.substring(10,12));
-		var e = Date.UTC(int_en_date.substring(0,4),(int_en_date.substring(4,6)-1),int_en_date.substring(6,8), int_en_date.substring(8,10), int_en_date.substring(10,12));
-		if (s > e) {
+		var start = new Date(form.task_start_date.value);
+		var end = new Date(form.task_end_date.value);
+		if (start > end) {
 			alert('End date is before start date!');
 			return false;
 		}
@@ -610,6 +587,8 @@ function copyForm(form, to, extras) {
                 }
                 break;
 			case 'text':
+			case 'date':
+			case 'datetime-local':
 			case 'textarea':
 			case 'hidden':
 				to.appendChild(h.addHidden(elem.name, elem.value));
@@ -645,16 +624,6 @@ function copyForm(form, to, extras) {
 }
 
 function saveDates(form, id) {
-	if (can_edit_time_information) {
-		if (form.task_start_date.value.length > 0) {
-			form.task_start_date.value += form.start_hour.value + form.start_minute.value;
-		}
-		if (form.task_end_date.value.length > 0) {
-			form.task_end_date.value += form.end_hour.value + form.end_minute.value;
-		}
-	}
-	
-
 	return new Array('task_start_date', 'task_end_date');
 }
 

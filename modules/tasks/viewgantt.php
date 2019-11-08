@@ -84,26 +84,6 @@ if (!@$min_view) {
 }
 ?>
 <script language="javascript">
-var calendarField = "";
-
-function popCalendar(field) {
-	calendarField = field;
-	idate = eval("document.editFrm." + field + ".value");
-	window.open('?m=public&'+'a=calendar&'+'dialog=1&'+'callback=setCalendar&'+'date=' + idate, 
-	            "calwin", "width=250, height=220, scrollbars=no, status=no");
-}
-
-/**
- *	@param string Input date in the format YYYYMMDD
- *	@param string Formatted date
- */
-function setCalendar(idate, fdate) {
-	fld_date = eval("document.editFrm." + calendarField);
-	fld_fdate = eval("document.editFrm.show_" + calendarField);
-	fld_date.value = idate;
-	fld_fdate.value = fdate;
-}
-
 function scrollPrev() {
 	f = document.editFrm;
 <?php
@@ -163,24 +143,30 @@ echo ('m=' . $m . '&amp;a=' . $a . '&amp=tab=' . $tab . '&amp;project_id=' . $pr
 
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('From');?>:</td>
 	<td align="left" nowrap="nowrap">
-		<input type="hidden" name="sdate" value="<?php 
-echo $start_date->format(FMT_TIMESTAMP_DATE);?>" />
-		<input type="text" class="text" name="show_sdate" value="<?php 
-echo $start_date->format($df);?>" size="12" disabled="disabled" />
-		<a href="javascript:popCalendar('sdate')">
-		<img src="./images/calendar.gif" width="24" height="12" alt="" border="0" />
-		</a>
+		<input type="date" name="sdate" value="<?php
+echo $start_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
 	</td>
 
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('To');?>:</td>
 	<td align="left" nowrap="nowrap">
-		<input type="hidden" name="edate" value="<?php 
-echo $end_date->format(FMT_TIMESTAMP_DATE);?>" />
-		<input type="text" class="text" name="show_edate" value="<?php 
-echo $end_date->format($df);?>" size="12" disabled="disabled" />
-		<a href="javascript:popCalendar('edate')">
-		<img src="./images/calendar.gif" width="24" height="12" alt="" border="0" />
-		</a>
+		<input type="date" name="edate" value="<?php
+echo $end_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+	</td>
+	<td valign="top">
+		<input type="checkbox" name="showLabels" id="showLabels" <?php 
+echo (($showLabels == 1) ? 'checked="checked"' : ''); ?> /><label for="showLabels"><?php 
+echo $AppUI->_('Show captions'); ?></label>
+	</td>
+	<td valign="top">
+		<input type="checkbox" name="showWork" id="showWork" <?php 
+echo (($showWork == 1) ? 'checked="checked"' : ''); ?> /><label for="showWork"><?php 
+echo $AppUI->_('Show work instead of duration'); ?></label>
+	</td>	
+	<td valign="top">
+		<input type="checkbox" name="sortByName" id="sortByName" <?php 
+echo (($sortByName == 1) ? 'checked="checked"' : ''); ?> /><label for="sortByName"><?php 
+echo $AppUI->_('Sort by Task Name'); ?></label>
+	</td>	
 	<td align="left">
 		<input type="button" class="button" value="<?php 
 echo $AppUI->_('submit');?>" onclick='javascript:document.editFrm.display_option.value="custom";submit();'>
