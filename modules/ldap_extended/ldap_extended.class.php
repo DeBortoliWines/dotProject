@@ -9,8 +9,6 @@ require_once $AppUI->getSystemClass('dp');
 require_once DP_BASE_DIR ."/modules/system/roles/roles.class.php";
 
 
-
-
 class CLDAPExtended extends CDpObject {
 		//Default values are test purpose only. It is overwrite on constructor.
 		//replace such values from some configuration data
@@ -628,6 +626,20 @@ class CLDAPExtended extends CDpObject {
 				require_once DP_BASE_DIR ."/modules/ldap_extended/do_ldap_group_membership_based.php";
 			}
 		
+	}
+	
+	public function isModuleActive(){
+		$q = new DBQuery();
+		$q->addQuery("mod_id");
+		$q->addTable("modules");
+		$q->addWhere("mod_name='ldap_extended' and mod_active=1");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$isModActive=false;
+		foreach($records as $record){
+			$isModActive=true;
+		 }
+		 return $isModActive;
 	}
 	
 }
