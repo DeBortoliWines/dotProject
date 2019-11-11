@@ -339,133 +339,55 @@ function next_working_day(dateObj) {
 * @modify reason calcFinish does not use time info and working_days array 
 */
 function calcFinish(f) {
-	var e = new Date(f.task_start_date.value);
+	// Getting needed values from form
+	const startDate = new Date(f.task_start_date.value);
+	const duration = parseFloat(f.task_duration.value);
+	const durationType = f.task_duration_type.value;
 
-	// The task duration
-	var durn = parseFloat(f.task_duration.value);//hours
-	var durnType = parseFloat(f.task_duration_type.value); //1 or 24
+	var addDays = 0;
+	var addHours = 0;
 
-	//temporary variables
-	if (durnType==24) {
-		durn *= daily_working_hours;
-	}
-	var inc = Math.floor(durn);
-	var hoursToAddToLastDay = 0;
-	var hoursToAddToFirstDay = durn;
-	var fullWorkingDays = 0;
-	var int_st_hour = e.getHours();
-
-	// calculate the number of non-working days
-	var k = 7 - working_days.length;
-
-	var durnMins = (durn - inc) * 60;
-	if ((e.getMinutes() + durnMins) >= 60)
-		inc++;
-
-	var mins = (e.getMinutes() + durnMins) % 60;
-	if (mins > 38)
-		e.setMinutes(45);
-	else if (mins > 23)
-		e.setMinutes(30);
-	else if (mins > 8)
-		e.setMinutes(15);
-	else
-		e.setMinutes(0);
-	
-	// jump over to the first working day
-	for (var i = 0; i < k; i++){
-		if (!isInArray(working_days, e.getDay())) {
-			e.setDate(e.getDate() + 1);
-		}
-	}
-		
-	/*
-	if (durnType==24) {
-		hoursToAddToFirstDay = inc * 
-		fullWorkingDays = Math.ceil(inc)+1;
-		e.setMinutes(0);
-
-		// Include start day as a working day (if it is one)
-		if (isInArray(working_days, e.getDay())) fullWorkingDays--;
-
-	 	for (var i = 0; i < fullWorkingDays; i++)
-		{
-			e.setDate(e.getDate() + 1);
-			if (!isInArray(working_days, e.getDay())) i--;			
-		}
-		
-		f.end_hour.value = f.start_hour.value;
+	if (durationType == 1) {
+		addDays = Math.floor(duration / daily_working_hours);
+		addHours = duration % daily_working_hours;
 	} else {
-	*/
-		
-		hoursToAddToFirstDay = inc;
-		if (e.getHours() + inc > cal_day_end)
-			hoursToAddToFirstDay = cal_day_end - e.getHours();
-		if (hoursToAddToFirstDay > workHours)
-			hoursToAddToFirstDay = workHours;
-		inc -= hoursToAddToFirstDay;
-		hoursToAddToLastDay = inc % workHours;
-		fullWorkingDays = Math.floor((inc - hoursToAddToLastDay) / workHours);
+		addDays = Math.floor(duration);
+		addHours = (duration - Math.floor(duration)) * daily_working_hours;
+	}
 
-		if (hoursToAddToLastDay <= 0)
-			e.setHours(e.getHours()+hoursToAddToFirstDay);
-		else
-		{
-			e.setHours(cal_day_start+hoursToAddToLastDay);
-			e.setDate(e.getDate() + 1);
-		}
-
-			
-		if ((e.getHours() == cal_day_end || (e.getHours() - int_st_hour) == workHours) && mins > 0)
-		{
-			e.setDate(e.getDate() + 1);
-			e.setHours(cal_day_start);
-		}
-		
-		//f.end_minute.value = (e.getMinutes() < 10 ? "0"+e.getMinutes() : e.getMinutes());
-		
-		// boolean for setting later if we just found a non-working day
-		// and therefore do not have to add a day in the next loop
-		// (which would have caused to not respecting multiple non-working days after each other)
-		var g = false;
-	 	for (var i = 0; i < Math.ceil(fullWorkingDays); i++){
-			if (!g) {
-				e.setDate(e.getDate() + 1);
-			}
-			g = false;
-			// calculate overriden non-working days
-			if (!isInArray(working_days, e.getDay())) {
-				e.setDate(e.getDate() + 1);
-				i--;
-				g = true;
-			}
-		}
-		//f.end_hour.value = (e.getHours() < 10 ? "0"+e.getHours() : e.getHours());
-		f.task_end_date.value = e.toISOString().substring(0,19);
-	// }
-	
-	var tz1 = "";
-	var tz2 = "";
-
-	// if there was no fullworkingday we have to check whether the end day is a working day 
-	// and in the negative case postpone the end date by appropriate days
-	for (var i = 0; i < 7-working_days.length; i++){
-		// override  possible non-working enddays
-		if (!isInArray(working_days, e.getDay())) {
-			e.setDate(e.getDate() + 1);
+	// Adding days
+	var endDate = new Date(startDate);
+	var count = 0;
+	while (count < addDays) {
+		endDate.setDate(endDate.getDate() + 1);
+		if (working_days.includes(endDate.getDay())) {
+			count++;
 		}
 	}
 
-	if (e.getDate() < 10) tz1 = "0";
-	if ((e.getMonth()+1) < 10) tz2 = "0";
+	// Adding hours
+	while (true) {
+		if (endDate.getHours() + addHours <= cal_day_end) {
+			endDate.setHours(endDate.getHours() + addHours);
+			break;
+		} else {
+			endDate.setDate(endDate.getDate() + 1);
+			if (!working_days.includes(endDate.getDay())) {
+				continue;
+			}
+			addHours -= cal_day_end - endDate.getHours();
+			endDate.setHours(cal_day_start);
+			continue;
+		}
+	}
 
-	//f.end_date.value = tz2+(e.getMonth()+1)+"/"+tz1+e.getDate()+"/"+e.getUTCFullYear(); // MM/DD/YY
-	//f.end_date.value = tz1+e.getDate()+"/"+tz2+(e.getMonth()+1)+"/"+e.getUTCFullYear(); // DD/MM/YY
-	//var url = '?m=public&a=date_format&dialog=1&field='+f.name+'.end_date&date=' + f.task_end_date.value;
-	//thread = window.frames['thread']; //document.getElementById('thread');
-	//thread.location = url;
-
-	f.task_end_date.value = e.toISOString().substring(0,19);
+	// Formatting date
+	var formattedMonth = (endDate.getMonth()+1 < 10) ? `0${endDate.getMonth()+1}` : endDate.getMonth()+1;
+	var formattedDay = (endDate.getDate() < 10) ? `0${endDate.getDate()}` : endDate.getDate();
+	var formattedHours = (endDate.getHours() < 10) ? `0${endDate.getHours()}` : endDate.getHours();
+	var formattedMinutes = (endDate.getMinutes() < 10) ? `0${endDate.getMinutes()}` : endDate.getMinutes();
+	var formattedDate = `${endDate.getFullYear()}-${formattedMonth}-${formattedDay}T${formattedHours}:${formattedMinutes}:00`;
+	f.task_end_date.value = formattedDate;
 }
 
 function changeRecordType(value){
