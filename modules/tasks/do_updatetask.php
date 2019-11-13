@@ -53,6 +53,8 @@ if (!($obj->bind($_POST))) {
 
 if ($obj->task_log_date) {
 	$date = new CDate($obj->task_log_date);
+	$current_time = localtime(time(), true);
+	$date->setTime($current_time[tm_hour], $current_time[tm_min], $current_time[tm_sec]);
 	$obj->task_log_date = $date->format(FMT_DATETIME_MYSQL);
 }
 $dot = mb_strpos($obj->task_log_hours, ':');
