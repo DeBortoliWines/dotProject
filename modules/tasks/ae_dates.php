@@ -32,6 +32,9 @@ for ($current = 0; $current < 60; $current += $inc) {
 	$minutes[$current] = $current;
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 // format dates
 $df = $AppUI->getPref('SHDATEFORMAT');
 
@@ -111,10 +114,8 @@ if ($can_edit_time_information) {
 <tr>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Start Date');?></td>
 	<td nowrap="nowrap">
-		<input type="datetime-local" name="task_start_date" id="task_start_date" value="<?php 
-	echo (($start_date) ? $start_date->format(FMT_DATETIME_HTML5) : ''); ?>" class="dpDateField text">
-		
-		
+		<input type="text" id="task_start_date" class="flatpickr flatpickr-input" name="task_start_date" value="<?php 
+		echo (($start_date) ? $start_date->format(FMT_DATETIME_HTML5) : ''); ?>"/>
 	</td>
 	
 </tr>
@@ -122,10 +123,8 @@ if ($can_edit_time_information) {
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Finish Date');?></td>
 
 	<td nowrap="nowrap">
-		<input type="datetime-local" name="task_end_date" id="task_end_date" value="<?php 
-	echo $end_date ? $end_date->format(FMT_DATETIME_HTML5) : '';?>" class="dpDateField text">
-		
-		
+		<input type="text" id="task_end_date" class="flatpickr flatpickr-input" name="task_end_date" value="<?php 
+		echo $end_date ? $end_date->format(FMT_DATETIME_HTML5) : '';?>"/>
 	</td>
        
 </tr>
@@ -167,4 +166,13 @@ if ($can_edit_time_information) {
 </form>
 <script language="javascript" >
  subForm.push(new FormDefinition(<?php echo $currentTabId;?>, document.datesFrm, checkDates, saveDates));
+
+flatpickr("#task_start_date", {
+	enableTime: true,
+	dateFormat: "Y-m-dTH:i"
+});
+flatpickr("#task_end_date", {
+	enableTime: true,
+	dateFormat: "Y-m-dTH:i"
+});
 </script>

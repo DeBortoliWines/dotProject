@@ -3,6 +3,9 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 $do_report = dPgetParam($_POST, 'do_report', 0);
 $log_start_date = dPgetCleanParam($_POST, 'log_start_date', 0);
 $log_end_date = dPgetCleanParam($_POST, 'log_end_date', 0);
@@ -38,8 +41,8 @@ $end_date->setTime(23, 59, 59);
 <tr>
 	<td align="right" width="1%" nowrap="nowrap">
 		<label for="start_date"><?php echo $AppUI->_('For period'); ?>:</label>
-		<input type="date" name="log_start_date" value="<?php
-echo $start_date->format(FMT_DATE_HTML5); ?>" class="text dpDateField">
+		<input type="text" name="log_start_date" id="log_start" value="<?php
+echo $start_date->format(FMT_DATE_HTML5); ?>" class="flatpickr flatpickr-input text dpDateField">
 	</td>
 	<td width="1%" nowrap="nowrap">
 		<?php
@@ -61,9 +64,17 @@ echo ($AppUI->_('submit')); ?>" />
 <tr>
 	<td align="right" width="1%" nowrap="nowrap">
 		<label for="end_date"><?php echo $AppUI->_('to'); ?>:</label>
-		<input type="date" name="log_end_date" value="<?php
-echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" class="text dpDateField">
+		<input type="text" name="log_end_date" id="log_end" value="<?php
+echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" class="flatpickr flatpickr-input text dpDateField">
 	</td>
+	<script type="text/javascript">
+		flatpickr("#log_start", {
+			dateFormat: "Y-m-d"
+		});
+		flatpickr("#log_end", {
+			dateFormat: "Y-m-d"
+		});
+	</script>
 	<td width="1%">
 		<?php echo ($AppUI->_('Levels to display')); ?>
 		<input type="text" name="max_levels" size="10" maxlength="3" value="<?php 

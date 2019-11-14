@@ -4,6 +4,9 @@ if (!defined('DP_BASE_DIR')) {
 }
 include ($AppUI->getLibraryClass('quilljs/richedit.class'));
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 $project_id = intval(dPgetParam($_GET, 'project_id', 0));
 $company_id = intval(dPgetParam($_GET, 'company_id', 0));
 $company_internal_id = intval(dPgetParam($_GET, 'company_internal_id', 0));
@@ -272,7 +275,8 @@ function setDepartment(department_id_string) {
 		<tr>
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Start Date');?></td>
 			<td nowrap="nowrap">
-				<input type="date" class="date text" name="project_start_date" id="date1" value="<?php echo $start_date ? $start_date->format(FMT_DATE_HTML5) : '';?>" class="text"/>
+				<input type="text" class="flatpickr flatpickr-input date text" name="project_start_date" id="date1" 
+				value="<?php echo $start_date ? $start_date->format(FMT_DATE_HTML5) : '';?>"/>
 			</td>
 			<td rowspan="6" valign="top">
 					<?php
@@ -292,9 +296,18 @@ function setDepartment(department_id_string) {
 		<tr>
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Target Finish Date');?></td>
 			<td nowrap="nowrap">
-				<input type="date" class="date text" name="project_end_date" id="date2" value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>" class="text"/>
+				<input type="text" class="flatpickr flatpickr-input date text" name="project_end_date" id="date2" 
+				value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>"/>
 			</td>
 		</tr>
+		<script type="text/javascript">
+			flatpickr("#date1", {
+				dateFormat: "Y-m-d"
+			});
+			flatpickr("#date2", {
+				dateFormat: "Y-m-d"
+			});
+		</script>
 		<tr>
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Target Budget');?> <?php echo $dPconfig['currency_symbol'] ?></td>
 			<td>

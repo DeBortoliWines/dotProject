@@ -3,6 +3,9 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 global $AppUI, $task_id, $obj, $percent, $can_edit_time_information;
 
 // check permissions
@@ -175,8 +178,8 @@ echo(($log->task_log_creator == 0) ? $AppUI->user_id : $log->task_log_creator) ?
       <tr>
         <td align="right"><?php echo $AppUI->_('Date'); ?></td>
         <td nowrap="nowrap">
-          <input type="date" name="task_log_date" value="<?php
-echo $log_date->format(FMT_DATE_HTML5); ?>" class="text dpDateField">
+          <input type="text" name="task_log_date" class="flatpicker flatpicker-input text dpDateField" id="task_log_date" value="<?php
+echo $log_date->format(FMT_DATE_HTML5); ?>" >
         </td>
       </tr>
       <tr>
@@ -237,9 +240,17 @@ if ($obj->canUserEditTimeInformation()) {
       <tr>
         <td align='right'><?php echo $AppUI->_("Task end date"); ?></td>
         <td>
-          <input type="date" name="task_end_date" value="<?php
-	echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" class="text dpDateField">
+          <input type="text" name="task_end_date" class="flatpickr flatpickr-input text dpDateField" id="task_end_date" 
+          value="<?php echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" >
         </td>
+        <script>
+        flatpickr("#task_log_date", {
+          dateFormat: "Y-m-d"
+        });
+        flatpickr("#task_end_date", {
+          dateFormat: "Y-m-d"
+        })
+        </script>
       </tr>
 <?php
 }
