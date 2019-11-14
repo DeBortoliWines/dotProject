@@ -16,6 +16,9 @@ $start_date = intval($log_start_date) ? new CDate($log_start_date) : new CDate(d
 $end_date = intval($log_end_date) ? new CDate($log_end_date) : new CDate();
 
 $end_date->setTime(23, 59, 59);
+
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
 ?>
 
 <form name="editFrm" action="index.php?m=projects&a=reports" method="post">
@@ -28,11 +31,21 @@ $end_date->setTime(23, 59, 59);
 
 <tr>
 	<td nowrap="nowrap"><?php echo $AppUI->_('For period');?>:
-		<input type="date" name="log_start_date" value="<?php echo $start_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+		<input type="text" name="log_start_date" class="flatpickr flatpickr-input text dpDateField" id="log_start"
+		value="<?php echo $start_date->format(FMT_DATE_HTML5);?>">
 	</td>
 	<td nowrap="nowrap"><?php echo $AppUI->_('to');?>
-		<input type="date" name="log_end_date" value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>" class="text dpDateField">
+		<input type="text" name="log_end_date" class="flatpickr flatpickr-input text dpDateField" id="log_end"
+		value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>">
 	</td>
+	<script type="text/javascript">
+		flatpickr("#log_start", {
+			dateFormat: "Y-m-d"
+		});
+		flatpickr("#log_end", {
+			dateFormat: "Y-m-d"
+		});
+	</script>
 	<td nowrap='nowrap'>
 	   <input type="radio" name="coarseness" value="1" <?php if ($coarseness == 1) echo 'checked' ?> />
 	   <?php echo $AppUI->_('Days');?>

@@ -7,6 +7,9 @@ require_once DP_BASE_DIR . '/modules/projects/frappegantt.php';
 
 GLOBAL $min_view, $m, $a, $user_id, $tab, $tasks;
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 $min_view = defVal(@$min_view, false);
 
 $project_id = defVal(@$_GET['project_id'], 0);
@@ -143,15 +146,23 @@ echo ('m=' . $m . '&amp;a=' . $a . '&amp=tab=' . $tab . '&amp;project_id=' . $pr
 
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('From');?>:</td>
 	<td align="left" nowrap="nowrap">
-		<input type="date" name="sdate" value="<?php
-echo $start_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+		<input type="text" name="sdate" class="flatpickr flatpickr-input text dpDateField" id="sdate" 
+		value="<?php echo $start_date->format(FMT_DATE_HTML5);?>">
 	</td>
 
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('To');?>:</td>
 	<td align="left" nowrap="nowrap">
-		<input type="date" name="edate" value="<?php
-echo $end_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+		<input type="text" name="edate" class="flatpikcr flatpickr-input text dpDateField" id="edate" 
+		value="<?php echo $end_date->format(FMT_DATE_HTML5);?>" >
 	</td>
+	<script type="text/javascript">
+		flatpickr("#sdate", {
+			dateFormat: "Y-m-d"
+		});
+		flatpickr("#edate", {
+			dateFormat: "Y-m-d"
+		});
+	</script>
 	<td valign="top">
 		<input type="checkbox" name="showLabels" id="showLabels" <?php 
 echo (($showLabels == 1) ? 'checked="checked"' : ''); ?> /><label for="showLabels"><?php 

@@ -3,6 +3,8 @@
 if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
 
 if (isset($_POST['clash_action'])) {
 	$do_include = false;
@@ -119,17 +121,25 @@ function set_clash_action(action) {
 <tr>
   <td width='50%' align='right'><?php echo $AppUI->_('Earliest Date'); ?>:</td>
   <td width="50%" align="left" nowrap="nowrap">
-    <input type="date" name="event_start_date" value="<?php
-echo $start_date->format(FMT_DATE_HTML5); ?>" class="text dpDateField">
+	<input type="text" name="event_start_date" class="flatpickr flatpickr-input text dpDateField" id="event_start"
+	value="<?php echo $start_date->format(FMT_DATE_HTML5); ?>"/>
   </td>
 </tr>
 <tr>
   <td width="50%" align="right"><?php echo $AppUI->_('Latest Date'); ?>:</td>
   <td width="50%" align="left" nowrap="nowrap">
-    <input type="date" name="event_end_date" value="<?php
-echo $end_date->format(FMT_DATE_HTML5); ?>" class="text dpDateField">
+	<input type="text" name="event_end_date" class="flatpickr flatpickr-input text dpDateField" id="event_end"
+	value="<?php echo $end_date->format(FMT_DATE_HTML5); ?>"/>
   </td>
 </tr>
+<script type="text/javascript">
+	flatpickr("#event_start", {
+		dateFormat: "Y-m-d"
+	});
+	flatpickr("#event_end", {
+		dateFormat: "Y-m-d"
+	});
+</script>
 <tr>
   <td width='50%' align='right'><?php echo $AppUI->_('Earliest Start Time'); ?>:</td>
   <td width='50%' align='left'><?php 

@@ -3,6 +3,9 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 $AppUI->savePlace();
 
 $do_report = (bool)dPgetParam($_POST, 'do_report', true);
@@ -144,14 +147,22 @@ function chPriority(user_id) {
 <tr>
 	<td align="right" width="1%" nowrap="nowrap">
 		<label for="log_start_date"><?php echo $AppUI->_('For period'); ?>:</label>
-		<input type="date" name="log_start_date" id="log_start_date" value="<?php 
-echo $start_date->format(FMT_DATE_HTML5); ?>" class="text" />
+		<input type="text" name="log_start_date"class="flatpickr flatpickr-input text" id="log_start_date" value="<?php 
+echo $start_date->format(FMT_DATE_HTML5); ?>"  />
 		<br /><br />
 		<label for="log_end_date"><?php echo $AppUI->_('to'); ?>:</label>
-		<input type="date" name="log_end_date" id="log_end_date" value="<?php 
-echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" class="text" />
+		<input type="text" name="log_end_date"  class="flatpickr flatpickr-input text" id="log_end_date" value="<?php 
+echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>"/>
 		<br />
 	</td>
+	<script>
+		flatpickr("#log_start_date", {
+			dateFormat: "Y-m-d"
+		});
+		flatpickr("#log_end_date", {
+			dateFormat: "Y-m-d"
+		});
+	</script>
 	<td width="1%" nowrap="nowrap">
 		<?php
 echo arraySelect(dPgetUsers(), 'log_userfilter', 'class="text" style="width: 200px"', 

@@ -2,7 +2,8 @@
 if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
-
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
 ?>
 <script language="javascript" >
 var calWin = null;
@@ -45,13 +46,15 @@ if ($a = dPgetCleanParam($_REQUEST, "a", "") == "") {
 	<tr align="center">
 		<td align="right" width="45%" ><?php echo $AppUI->_('Start Date');?></td>
 		<td width="55%" align="left">
-			<input type="date" name="log_start_date" value="<?php echo $start_date ? $start_date->format(FMT_DATE_HTML5) : "" ;?>" class="text" />
+			<input type="text" name="log_start_date" class="flatpickr flatpickr-input text" id="log_start"
+			value="<?php echo $start_date ? $start_date->format(FMT_DATE_HTML5) : '' ;?>"/>
 		</td>
 	</tr>
 	<tr align="center">
 		<td align="right" width="45%"><?php echo $AppUI->_('End Date');?></td>
 		<td width="55%" align="left">
-			<input type="date" name="log_end_date" value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>" class="text" />
+			<input type="text" name="log_end_date" class="flatpickr flatpickr-input text" id="log_end"
+			value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>"/>
 		</td>
 </table>
 <table align="center">
@@ -98,4 +101,11 @@ if (dPgetParam($_REQUEST, "showdetails", 0) == 1) {
 <?php } ?>
 </table>
 <?php } ?>
-
+<script>
+flatpickr("#log_start", {
+	dateFormat: "Y-m-d"
+});
+flatpickr("#log_end", {
+	dateFormat: "Y-m-d"
+});
+</script>

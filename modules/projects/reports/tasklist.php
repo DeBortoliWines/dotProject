@@ -3,6 +3,9 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 /**
 * Generates a report of the task logs for given dates
 */
@@ -98,10 +101,10 @@ echo $AppUI->_('Next Month'); ?>" onClick="set(30)" /></td>
   <tr>
     <td align="right" nowrap="nowrap"><?php echo $AppUI->_('For period'); ?>:</td>
     <td nowrap="nowrap">
-      <input type="date" name="list_start_date" value="<?php 
-echo $start_date->format(FMT_DATE_HTML5); ?>" class="text" />
-      <input type="date" name="list_end_date" value="<?php 
-echo (($end_date) ? $end_date->format(FMT_DATE_HTML5) : ''); ?>" class="text" />
+		<input type="text" name="list_start_date" class="flatpickr flatpickr-input text" id="list_start"
+		value="<?php echo $start_date->format(FMT_DATE_HTML5); ?>">
+		<input type="text" name="list_end_date" class="flatpickr flatpickr-input text" id="list_end"
+		value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>">
       <input type="checkbox" name="log_all" id="log_all" value="1"<?php 
 echo (($log_all) ? ' checked="checked"' : ''); ?> />
       <label for="log_all"><?php echo $AppUI->_('Log All'); ?></label>
@@ -119,6 +122,14 @@ echo $AppUI->_('submit'); ?>" />
   </tr>
 </form>
 </table>
+<script type="text/javascript">
+flatpickr("#list_start", {
+	dateFormat: "Y-m-d"
+});
+flatpickr("#list_end", {
+	dateFormat: "Y-m-d"
+});
+</script>
 
 <?php
 

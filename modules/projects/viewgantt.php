@@ -7,6 +7,9 @@ require_once DP_BASE_DIR . '/modules/projects/frappegantt.php';
 
 Gantt::WriteHeader();
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 global $AppUI, $company_id, $dept_ids, $department, $min_view, $m, $a, $user_id, $tab;
 global $m_orig, $a_orig;
 
@@ -157,14 +160,22 @@ echo ($url_query_string);
 			</td>
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('From');?>:</td>
 			<td align="left" nowrap="nowrap">
-				<input type="date" name="sdate" value="<?php
-echo $start_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+				<input type="text" name="sdate" class="flatpickr flatpickr-input text dpDateField" id="sdate"
+				value="<?php echo $start_date->format(FMT_DATE_HTML5);?>">
 			</td>
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('To');?>:</td>
 			<td align="left" nowrap="nowrap">
-				<input type="date" name="edate" value="<?php
-echo $end_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+				<input type="text" name="edate" class="flatpickr flatpickr-input text dpDateField" id="edate" 
+				value="<?php echo $end_date->format(FMT_DATE_HTML5);?>">
 			</td>
+			<script type="text/javascript">
+				flatpickr("#sdate", {
+					dateFormat: "Y-m-d"
+				});
+				flatpickr("#edate", {
+					dateFormat: "Y-m-d"
+				});
+			</script>
 			<td valign="top">
 				<?php 
 echo arraySelect($projFilter, 'proFilter', 'size="1" class="text"', $proFilter, true);?>

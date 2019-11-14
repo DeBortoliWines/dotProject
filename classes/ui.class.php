@@ -951,7 +951,11 @@ class CAppUI {
 		
 		// additionally load overlib
 		echo ('<script  src="' . $base . 'lib/overlib/overlib.js"></script>' 
-		      . "\n");
+			  . "\n");
+			  
+		// Load flatpickr library for new datepickers
+		echo ('<script  src="https://cdn.jsdelivr.net/npm/flatpickr"></script>' 
+			  . "\n");
 		
 		$this->getModuleJS($m, $a, true);
 	}

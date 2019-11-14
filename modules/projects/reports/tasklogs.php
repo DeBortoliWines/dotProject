@@ -3,6 +3,9 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
 /**
 * Generates a report of the task logs for given dates
 */
@@ -39,13 +42,23 @@ $end_date->setTime(23, 59, 59);
 <tr>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('For period');?>:</td>
 	<td nowrap="nowrap">
-		<input type="date" name="log_start_date" value="<?php echo $start_date->format(FMT_DATE_HTML5);?>" class="text dpDateField">
+		<input type="text" name="log_start_date"  class="flatpickr flatpickr-input text dpDateField" id="log_start" 
+		value="<?php echo $start_date->format(FMT_DATE_HTML5);?>">
+
 	</td>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('to');?></td>
 	<td nowrap="nowrap">
-		<input type="date" name="log_end_date" value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>" class="text dpDateField">
+		<input type="text" name="log_end_date"  class="flatpickr flatpickr-input text dpDateField" id="log_end" 
+		value="<?php echo $end_date ? $end_date->format(FMT_DATE_HTML5) : '';?>">
 	</td>
-
+	<script type="text/javascript">
+		flatpickr("#log_start", {
+			dateFormat: "Y-m-d"
+		});
+		flatpickr("#log_end", {
+			dateFormat: "Y-m-d"
+		});
+	</script>
 	<td nowrap="nowrap">
 		<?php echo $AppUI->_('User');?>:
 		<select name="log_userfilter" class="text" style="width: 80px">

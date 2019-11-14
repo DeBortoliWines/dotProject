@@ -28,6 +28,10 @@ else if (!$obj->load($event_id) && $event_id) {
 	$AppUI->redirect();
 }
 
+// Import css for flatpickr
+echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+
+
 // load the event types
 $types = dPgetSysVal('EventType');
 
@@ -295,18 +299,28 @@ echo (@$obj->event_private ? 'checked="checked"' : '');?> />
 <tr>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Start Date'); ?>:</td>
 	<td nowrap="nowrap">
-		<input type="datetime-local" step="<?php echo $inc * 60 ?>" name="event_start_date" value="<?php 
-echo (($start_date) ? $start_date->format(FMT_DATETIME_HTML5) : ''); ?>" class="dpDateField text">
+		<input type="text" name="event_start_date" class="flatpickr flatpickr-input" id="event_start" step="<?php echo $inc * 60 ?>"
+		value="<?php echo (($start_date) ? $start_date->format(FMT_DATETIME_HTML5) : ''); ?>">
 	</td>
 </tr>
 
 <tr>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('End Date'); ?>:</td>
 	<td nowrap="nowrap">
-		<input type="datetime-local" step="<?php echo $inc * 60 ?>" name="event_end_date" value="<?php 
-echo (($end_date) ? $end_date->format(FMT_DATETIME_HTML5) : ''); ?>" class="dpDateField text">
+		<input type="text" name="event_end_date" class="flatpickr flatpickr-input" id="event_end" step="<?php echo $inc * 60 ?>"
+		value="<?php echo (($end_date) ? $end_date->format(FMT_DATETIME_HTML5) : ''); ?>">
 	</td>
 </tr>
+<script type="text/javascript">
+	flatpickr("#event_end", {
+		enableTime: true,
+		dateFormat: "Y-m-dTH:i"
+	});
+	flatpickr("#event_start", {
+		enableTime: true,
+		dateFormat: "Y-m-dTH:i"
+	});
+</script>
 <tr>
 	<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Recurs'); ?>:</td>
 	<td><?php 
