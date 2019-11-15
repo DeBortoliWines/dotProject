@@ -954,7 +954,7 @@ class CAppUI {
 			  . "\n");
 			  
 		// Load flatpickr library for new datepickers
-		echo ('<script  src="https://cdn.jsdelivr.net/npm/flatpickr"></script>' 
+		echo ('<script  src="' . $base . 'lib/flatpickr/flatpickr.js"></script>' 
 			  . "\n");
 		
 		$this->getModuleJS($m, $a, true);

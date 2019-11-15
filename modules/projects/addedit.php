@@ -5,7 +5,7 @@ if (!defined('DP_BASE_DIR')) {
 include ($AppUI->getLibraryClass('quilljs/richedit.class'));
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 $project_id = intval(dPgetParam($_GET, 'project_id', 0));
 $company_id = intval(dPgetParam($_GET, 'company_id', 0));

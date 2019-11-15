@@ -8,7 +8,7 @@ require_once DP_BASE_DIR . '/modules/projects/frappegantt.php';
 GLOBAL $min_view, $m, $a, $user_id, $tab, $tasks;
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 $min_view = defVal(@$min_view, false);
 
