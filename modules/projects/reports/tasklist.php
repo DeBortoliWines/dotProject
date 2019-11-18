@@ -4,7 +4,7 @@ if (!defined('DP_BASE_DIR')) {
 }
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 /**
 * Generates a report of the task logs for given dates

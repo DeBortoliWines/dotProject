@@ -18,7 +18,7 @@ $end_date = intval($log_end_date) ? new CDate($log_end_date) : new CDate();
 $end_date->setTime(23, 59, 59);
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 ?>
 
 <form name="editFrm" action="index.php?m=projects&a=reports" method="post">

@@ -29,7 +29,7 @@ else if (!$obj->load($event_id) && $event_id) {
 }
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 
 // load the event types

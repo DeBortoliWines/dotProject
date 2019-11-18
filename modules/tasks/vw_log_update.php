@@ -4,7 +4,7 @@ if (!defined('DP_BASE_DIR')) {
 }
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 global $AppUI, $task_id, $obj, $percent, $can_edit_time_information;
 

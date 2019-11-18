@@ -33,7 +33,7 @@ for ($current = 0; $current < 60; $current += $inc) {
 }
 
 // Import css for flatpickr
-echo ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">');
+echo ('<link rel="stylesheet" href="' . $base . 'lib/flatpickr/flatpickr.min.css">');
 
 // format dates
 $df = $AppUI->getPref('SHDATEFORMAT');
