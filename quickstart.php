@@ -23,7 +23,7 @@ require_once DP_BASE_DIR.'/classes/query.class.php';
 $AppUI = new CAppUI;
 $AppUI->setUserLocale();
 $perms =& $AppUI->acl();
-require_once($AppUI->getLibraryClass('google-api-php-client-2.2.1/vendor/autoload'));
+require_once($AppUI->getLibraryClass('google-api-php-client/vendor/autoload'));
 require_once($AppUI->getModuleClass('tasks'));
 
 if (php_sapi_name() != 'cli') {
