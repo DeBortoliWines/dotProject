@@ -91,7 +91,10 @@ function getClient()
 $client = getClient();
 $service = new Google_Service_Gmail($client);
 $user = 'me';
-$results = $service->users_messages->listUsersMessages($user);
+$labels = ["INBOX", "UNREAD"];
+$results = $service->users_messages->listUsersMessages($user, ["labelIds" => $labels]);
+// $results = $service->users_messages->listUsersMessages($user);
+$allowedDomains = ["debortoli.com.au"];
 
 /*
     Decodes body of email
@@ -112,6 +115,7 @@ try {
             $message_id = $mlist->id;
             $optParamsGet2['format'] = 'full';
             $single_message = $service->users_messages->get($user, $message_id, $optParamsGet2);
+            print_r("MESSAGE ID: " . $single_message->id);
 
             $payload = $single_message->getPayload();
 
@@ -122,9 +126,13 @@ try {
             $subject = array_values(array_filter($headers, function($k) {
                 return $k['name'] == 'Subject';
             }));
-            $addresses = array_values(array_filter($headers, function($k) {
+            $toAddresses = array_values(array_filter($headers, function($k) {
                 return $k['name'] == "To";
             }));
+            $fromAddresses = array_values(array_filter($headers, function($k) {
+                return $k['name'] == "From";
+            }));
+            $date = $single_message->getInternalDate();
 
             if (!$FOUND_BODY) {
                 $parts = $payload->getParts();
@@ -148,25 +156,41 @@ try {
                     }
                 }
             }
-
-            $address = $addresses[0]->getValue();
-            if (strpos($address, "+") !== false) {
-                // Formatting address address to get task_id
-                $pos1 = strpos($address, "+")+1;
-                $pos2 = strpos($address, "@");
-                $length = abs($pos1 - $pos2);
-                $task_id = substr($address, $pos1, $length);
-                
-                // Task log creation
-                $log = new CTaskLog();
-                $log->task_log_task = intval($task_id);
-                $log->task_log_name = $subject[0]->getValue();
-                $log->task_log_description= $FOUND_BODY;
-                $log->task_log_creator = 285;
-                $log->task_log_hours = 1;
-                $log->task_log_costcode = 1;
-                $log->store();
+            $fromAddress = $fromAddresses[0]->getValue();
+            $adpos1 = strpos($fromAddress, "<")+1;
+            $adpos2 = strpos($fromAddress, ">");
+            $adLength = abs($adpos1 - $adpos2);
+            $fromAddress = substr($fromAddress, $adpos1, $adLength);
+            print_r("FROM ADDRESS\n\n\n$fromAddress\n\n\nEND FROM ADDRESS");
+            foreach ($allowedDomains as $allowedDomain) {
+                if (strpos($fromAddress, $allowedDomain) !== false) {
+                    $toAddress = $toAddresses[0]->getValue();
+                    if (strpos($toAddress, "+") !== false) {
+                        // Formatting address address to get task_id
+                        $pos1 = strpos($toAddress, "+")+1;
+                        $pos2 = strpos($toAddress, "@");
+                        $length = abs($pos1 - $pos2);
+                        $task_id = substr($toAddress, $pos1, $length);
+                        
+                        // Task log creation
+                        // $log = new CTaskLog();
+                        // $log->task_log_task = intval($task_id);
+                        // $log->task_log_name = $subject[0]->getValue();
+                        // $log->task_log_description= $FOUND_BODY;
+                        // $log->task_log_creator = 285;
+                        // $log->task_log_hours = 1;
+                        // $log->task_log_costcode = 1;
+                        // $log->store();
+                        print_r($fromAddress . "\n");
+                        print_r($FOUND_BODY . "\n\n");
+        
+                        $mods = new Google_Service_Gmail_ModifyMessageRequest();
+                        $mods->setAddLabelIds("READ");
+                        // $service->users_messages->modify($user, $message_id, $mods);
+                    }
+                }
             }
+
         }
         if ($results->getNextPageToken() != null) {
             $pageToken = $list->getNextPageToken();
