@@ -2,6 +2,7 @@
 if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
+// require_once($AppUI->getSystemClass('mail2log'));
 
 global $task_id;
 
@@ -12,6 +13,7 @@ $reminded = intval(dPgetParam($_GET, 'reminded', 0));
 $obj = new CTask();
 $obj->peek($task_id); //we need to peek at the task's data to determine its access level
 $msg = '';
+
 
 // check permissions for this record
 $canAccess = getPermission($m, 'access', $task_id);
@@ -27,6 +29,8 @@ if (!($canRead && $obj->canAccess($AppUI->user_id))) {
 	$AppUI->redirect('m=public&a=access_denied');
 }
 
+
+
 $q = new DBQuery;
 
 $q->addTable('tasks', "tsk");
@@ -39,7 +43,6 @@ $q->addQuery('project_name, project_color_identifier');
 $q->addQuery('u1.user_username as username');
 $q->addQuery('ROUND(SUM(task_log_hours),2) as log_hours_worked');
 $q->addGroup('task_id');
-
 
 //$obj = null;
 $sql = $q->prepare();
@@ -118,6 +121,11 @@ $titleBlock->show();
 
 $task_types = dPgetSysVal('TaskType');
 
+// Creating task-specific email address
+// TODO: Have this set in system settings
+$currentAddress = 'dbwdptest@gmail.com';
+$pos = strpos($currentAddress, '@');
+$taskAddress = substr_replace($currentAddress, "+$task_id", $pos, 0);
 ?>
 
 <script language="JavaScript">
@@ -238,8 +246,8 @@ function delIt() {
 			<td class="hilite" width="300"><?php echo $AppUI->_($task_types[$obj->task_type]);?></td>
 		</tr>
 		<tr>
-			<td align="right" nowrap="nowrap"><?php echo $AppUI->_("Task ID");?> :</td>
-			<td class="hilite" width="300"><?php echo $AppUI->_($task_id);?></td>
+			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Address');?> :</td>
+			<td class="hilite" width="300"><?php echo $AppUI->_($taskAddress);?></td>
 		</tr>
 
 

@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
@@ -64,7 +63,25 @@ class Mail2Log {
         return new Google_Service_Gmail($client);
     }
 
-    protected function createTaskLog($taskId, $body, $subject) {
+    /**
+     * Decodes gmail message body data
+     * @param string $data Data from gmail message body
+     * @return string
+     */
+    protected function decodeBody($data) {
+        $data = base64_decode(str_replace(array('-', '_'), array('+', '/'), $data));
+        return $data;
+    }
+
+    /**
+     * Creates dotproject task log from email
+     * @param string $taskId Task id sent in email
+     * @param string $body Body of the email for task log desc
+     * @param array $headers Google message headers
+     * @param string $date epoch timestamp that message was send
+     * @return boolean
+     */
+    protected function createTaskLog($taskId, $body, $headers, $date) {
         // Get owner of task using the task id
         $q = new DBQuery;
         $q->addTable("tasks");
@@ -72,15 +89,37 @@ class Mail2Log {
         $q->addWhere("task_id = " . $taskId);
         $taskOwner = $q->loadResult();
         $q->clear();
+        // If the query cannot find the task owner, the task must not exist
         if ($taskOwner == null) {
             return false;
         }
         
-        // Create new task log
+        // Getting needed data from the message headers
+        $subject = array_values(array_filter($headers, function($k) {
+            return $k['name'] == 'Subject';
+        }))[0]->getValue();
+        $fromAddress = array_values(array_filter($headers, function($k) {
+            return $k['name'] == 'From';
+        }))[0]->getValue();
+        $toAddresses = array_values(array_filter($headers, function($k) {
+            return $k['name'] == 'To';
+        }));
+        $toAddrValues = [];
+        foreach ($toAddresses as $toAddress) {
+            array_push($toAddrValues, $toAddress->getValue());
+        }
+        $newDate = date("Y-m-d H:i", substr($date, 0, 10));
+        $logBody = "<b>Automated log from email.</b><br>
+                    <b>Subject:</b> " . $subject . "<br>
+                    <b>From:</b> " . $fromAddress . "<br>
+                    <b>To:</b> " . implode(", ", $toAddrValues) . "<br>
+                    <b>Date:</b> " . $newDate . "<br>
+                    <b>Message:</b> " . $body;
+        // Create and store the new task log
         $log = new CTaskLog();
         $log->task_log_task = intval($taskId);
         $log->task_log_name = $subject;
-        $log->task_log_description = "Automated log from email.<br>" . $body;
+        $log->task_log_description = $logBody;
         $log->task_log_creator = intval($taskOwner);
         $log->task_log_hours = 1;
         $log->task_log_costcode = 1;
@@ -88,6 +127,44 @@ class Mail2Log {
         return true;
     }
 
+    /**
+     * Recursively check message parts to find the body text of the email
+     * @param array $parts Parts of the email
+     * @param string $type Which type of data to return
+     * @return string
+     */
+    protected function findBody($parts, $type='text/plain') {
+        foreach ($parts as $part) {
+            if ($part['mimeType'] == $type)
+                return $part->getBody()->getData();
+            else {
+                if ($part->getParts()) {
+                    $recurse = $this->findBody($part->getParts(), 'text/html');
+                    if (gettype($recurse) != 'array')
+                        return $recurse;
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets addresses of people Cc'd into the email
+     * @param array $headers Email headers
+     * @return array
+     */
+    protected function getCcAddresses($headers) {
+        foreach ($headers as $header) {
+            if ($header->getName() == 'Cc')
+                return explode(', ', $header->getValue());
+        }
+    }
+
+    /**
+     * Retrieve next messages to be processed from inbox
+     * @param Google_Service_Gmail $service Verified Google service instance
+     * @param int $amount Amount of emails to retrieve
+     * @return array
+     */
     protected function getNextMessages($service, $amount) {
         $emails = array();
         $labels = ["INBOX", "UNREAD"];
@@ -109,40 +186,51 @@ class Mail2Log {
                     $fromAddress = array_values(array_filter($headers, function($k) {
                         return $k['name'] == "From";
                     }))[0]->getValue();
+                    $CCAddresses = $this->getCcAddresses($headers);
 
+                    // Set each email to read after checking
                     $mods = new Google_Service_Gmail_ModifyMessageRequest();
                     $mods->setRemoveLabelIds(array("UNREAD"));
                     $service->users_messages->modify($this->user, $message->id, $mods);
                     
-                    // Verify it was sent from someone within the allowed domains
+                    // Verify someone from allowed domains sent or was CC'd in the email
                     foreach($this->allowedDomains as $allowedDomain) {
-                        if (strpos($fromAddress, $allowedDomain) !== false) {
+                        if (strpos($fromAddress, $allowedDomain) !== false)
                             array_push($emails, $singleMessage);
-                        }
+                        else {
+                            foreach ($CCAddresses as $CCAddress) {
+                                if (strpos($CCAddress, $allowedDomain) !== false) {
+                                    array_push($emails, $singleMessage);
+                                    break;
+                                }
+                            }
+                        } 
                     }
                 }
                 // Check for next page of emails
                 if ($results->getNextPageToken() != null) {
                     $pageToken = $results->getNextPageToken();
                     $results = $service->users_messages->listUsersMessages($this->user, ['pageToken' => $pageToken, 'maxResults' => 1000, 'labelIds' => $labels]);
-                } else {
+                } else
                     break;
-                }
             }
             return $emails;
-
-
         } catch (Google_Service_Exception $e) {
             // If no emails are found that need to be processed
             return $e->getMessage();
         }
     }
 
+    /**
+     * Processes emails in inbox
+     * @param Google_Service_Gmail $service Validated Google service
+     * @param int $amount Amount of emails to process 
+     */
     function processMessage($service, $amount) {
         // Get next message in queue
         $nextMessages = $this->getNextMessages($service, $amount);
         if (!is_array($nextMessages))
-            return $nextMessages;
+            return;
         foreach ($nextMessages as $nextMessage) {
             $messageId = $nextMessage->id;
             $payload = $nextMessage->getPayload();
@@ -150,34 +238,19 @@ class Mail2Log {
             $messageHeaders = $payload->getHeaders();
 
             $date = $nextMessage->getInternalDate();
-            $body = $this->decodeBody($messageBody['data']);
+            
             $subject = array_values(array_filter($messageHeaders, function($k) {
                 return $k['name'] == 'Subject';
             }));
             $toAddresses = array_values(array_filter($messageHeaders, function($k) {
                 return $k['name'] == 'To';
             }));
+
             // Getting body of email
-            if (!$body) {
-                $parts = $payload->getParts();
-                foreach ($parts as $part) {
-                    if ($part['body']) {
-                        $body = $this->decodeBody($part['body']->data);
-                        break;
-                    }
-                    if ($part['parts'] && !$body) {
-                        foreach ($part['parts'] as $p) {
-                            if ($p['mimeType'] === 'text/html' && $p['body']) {
-                                $body = decodeBody($p['body']->data);
-                                break;
-                            }
-                        }
-                    }
-                    if ($body) {
-                        break;
-                    }
-                }
-            }
+            $body = $messageBody->getData();
+            if (!$body)
+                $body = $this->findBody($payload->getParts());
+            $body = $this->decodeBody($body);
             // Checking if email address contains a task id
             $toAddress = $toAddresses[0]->getValue();
             if (strpos($toAddress, "+") !== false) {
@@ -186,7 +259,7 @@ class Mail2Log {
                 $length = abs($pos1 - $pos2);
                 $taskId = substr($toAddress, $pos1, $length);
 
-                $taskLog = $this->createTaskLog($taskId, $body, $subject[0]->getValue());
+                $taskLog = $this->createTaskLog($taskId, $body, $messageHeaders, $date);
                 if ($taskLog == false) {
                     $fromAddress = array_values(array_filter($messageHeaders, function($k) {
                         return $k['name'] == "From";
@@ -197,6 +270,13 @@ class Mail2Log {
         }
     }
 
+    /**
+     * If error, send email to sender
+     * @param string $from Sender email address
+     * @param string $to Recipient email address
+     * @param string $taskId Task id that user sent
+     * @param string $subject Subject from original email
+     */
     protected function sendErrorReply($from, $to, $taskId, $subject) {
         // Format email addresses
 
@@ -212,15 +292,4 @@ class Mail2Log {
         $mail->To($toAddr);
         $mail->Send();
     }
-
-    protected function decodeBody($body) {
-        $rawData = $body;
-        $sanitisedData = strtr($rawData, '-_', '+/');
-        $decodedMessage = base64_decode($sanitisedData);
-        if (!$decodedMessage) {
-            $decodedMessage = FALSE;
-        }
-        return $decodedMessage;
-    }
-
 }

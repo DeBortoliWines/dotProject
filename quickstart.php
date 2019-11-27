@@ -23,7 +23,7 @@ require_once DP_BASE_DIR.'/classes/query.class.php';
 $AppUI = new CAppUI;
 $AppUI->setUserLocale();
 $perms =& $AppUI->acl();
-require_once($AppUI->getLibraryClass('google-api-php-client/vendor/autoload'));
+require_once($AppUI->getLibraryClass('google-api-php-client-2.2.1/vendor/autoload'));
 require_once($AppUI->getModuleClass('tasks'));
 
 if (php_sapi_name() != 'cli') {
@@ -90,6 +90,7 @@ function getClient()
 
 $client = getClient();
 $service = new Google_Service_Gmail($client);
+// print_r("$service");
 $user = 'me';
 $labels = ["INBOX", "UNREAD"];
 $results = $service->users_messages->listUsersMessages($user, ["labelIds" => $labels]);
@@ -99,28 +100,74 @@ $allowedDomains = ["debortoli.com.au"];
 /*
     Decodes body of email
 */
-function decodeBody($body) {
-    $rawData = $body;
-    $sanitisedData = strtr($rawData, '-_', '+/');
-    $decodedMessage = base64_decode($sanitisedData);
-    if (!$decodedMessage) {
-        $decodedMessage = FALSE;
+// function decodeBody($body) {
+//     $rawData = $body;
+//     $sanitisedData = strtr($rawData, '-_', '+/');
+//     $decodedMessage = base64_decode($sanitisedData);
+//     if (!$decodedMessage) {
+//         $decodedMessage = FALSE;
+//     }
+//     return $decodedMessage;
+// }
+
+function decodeBody($data) {
+    $data = base64_decode(str_replace(array('-', '_'), array('+', '/'), $data));
+    // $data = imap_qprint($data);
+    // print_r($data);
+    return $data;
+}
+
+function findBody($parts, $type='text/plain') {
+    foreach ($parts as $part) {
+        if ($part['mimeType'] == $type)
+            return $part->getBody()->getData();
+        else {
+            if ($part->getParts()) {
+                $recurse = findBody($part->getParts());
+                if (gettype($recurse) != 'array')
+                    return $recurse;
+            }
+        }
     }
-    return $decodedMessage;
+}
+
+function getCcAddresses($headers) {
+    foreach ($headers as $header) {
+        if ($header->getName() == 'Cc')
+            return explode(', ', $header->getValue());
+    }
 }
 
 try {
-    while ($results->getMessages() != null) {
         foreach($results->getMessages() as $mlist) {
             $message_id = $mlist->id;
             $optParamsGet2['format'] = 'full';
             $single_message = $service->users_messages->get($user, $message_id, $optParamsGet2);
-            print_r("MESSAGE ID: " . $single_message->id);
+            // print_r("MESSAGE ID: " . $single_message->id);
 
             $payload = $single_message->getPayload();
+            // print_r($payload);
+            $body = $payload->getBody()->getData();
+
+            if (!$body) {
+                $body = findBody($payload->getParts());
+                // print_r(decodeBody($body));
+            }
+
+            // if (!$body) {
+            //     $part = $payload->getParts()[0]->getParts()[0]->getBody()->getData();
+            //     print_r(decodeBody($part));
+            // } else {
+            //     print_r(decodeBody($body));
+            // }
+            // $correctPart = $payload->getParts()[0]->getParts();
+            // print_r(decodeBody($correctPart[0]['body']->getData()));
 
             $body = $payload->getBody();
             $headers = $payload->getHeaders();
+            print_r(getCcAddresses($headers));
+
+            // print_r($body['data']);
 
             $FOUND_BODY = decodeBody($body['data']);
             $subject = array_values(array_filter($headers, function($k) {
@@ -132,6 +179,11 @@ try {
             $fromAddresses = array_values(array_filter($headers, function($k) {
                 return $k['name'] == "From";
             }));
+            $CcAddresses = array_values(array_filter($headers, function($k) {
+                return $k['name'] = 'Cc';
+            }));
+            
+            $toAddress = $toAddresses[0]->getValue();
             $date = $single_message->getInternalDate();
 
             if (!$FOUND_BODY) {
@@ -144,7 +196,7 @@ try {
 
                     if ($part['parts'] && !$FOUND_BODY) {
                         foreach ($part['parts'] as $p) {
-                            if ($p['mimeType'] === 'text/html' && $p['body']) {
+                            if ($p['mimeType'] == 'text/html' && $p['body']) {
                                 $FOUND_BODY = decodeBody($p['body']->data);
                                 break;
                             }
@@ -155,13 +207,14 @@ try {
                         break;
                     }
                 }
+                // print_r($FOUND_BODY->toSimpleObject());
             }
             $fromAddress = $fromAddresses[0]->getValue();
             $adpos1 = strpos($fromAddress, "<")+1;
             $adpos2 = strpos($fromAddress, ">");
             $adLength = abs($adpos1 - $adpos2);
             $fromAddress = substr($fromAddress, $adpos1, $adLength);
-            print_r("FROM ADDRESS\n\n\n$fromAddress\n\n\nEND FROM ADDRESS");
+            // print_r("FROM ADDRESS\n\n\n$fromAddress\n\n\nEND FROM ADDRESS");
             foreach ($allowedDomains as $allowedDomain) {
                 if (strpos($fromAddress, $allowedDomain) !== false) {
                     $toAddress = $toAddresses[0]->getValue();
@@ -181,8 +234,8 @@ try {
                         // $log->task_log_hours = 1;
                         // $log->task_log_costcode = 1;
                         // $log->store();
-                        print_r($fromAddress . "\n");
-                        print_r($FOUND_BODY . "\n\n");
+                        // print_r($fromAddress . "\n");
+                        // print_r($FOUND_BODY . "\n\n");
         
                         $mods = new Google_Service_Gmail_ModifyMessageRequest();
                         $mods->setAddLabelIds("READ");
@@ -190,8 +243,6 @@ try {
                     }
                 }
             }
-
-        }
         if ($results->getNextPageToken() != null) {
             $pageToken = $list->getNextPageToken();
             $list = $gmail->users_messages->listUsersMessages($user, ['pageToken' => $pageToken, 'maxResults' => 1000]);
