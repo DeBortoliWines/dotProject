@@ -214,15 +214,11 @@ class Mail2Log {
             array_push($toAddrValues, $toAddress->getValue());
         }
         $CcAddresses = explode(', ', $this->getHeaderVar('Cc', $headers));
-        $BccAddresses = explode(', ', $this->getHeaderVar('Bcc', $headers));
         $CcAddr = [];
         $BccAddr = [];
         $ToAddr = [];
         foreach ($CcAddresses as $CcAddress) {
             array_push($CcAddr, $this->removeTags($CcAddress));
-        }
-        foreach ($BccAddresses as $BccAddress) {
-            array_push($BccAddr, $this->removeTags($BccAddress));
         }
         foreach ($toAddrValues as $toAddr) {
             array_push($ToAddr, $this->removeTags($toAddr));
@@ -234,7 +230,6 @@ class Mail2Log {
                     <b>From:</b> ' . implode(', ', $fromAddrValues) . '<br>
                     <b>To:</b> ' . implode(', ', $ToAddr) . '<br>
                     <b>Cc:</b> ' . implode(', ', $CcAddr) . '<br>
-                    <b>Bcc:</b> ' . implode(', ', $BccAddr) . '<br>
                     <b>Date:</b> ' . $newDate . '<br>
                     <b>Message:</b> ' . $body;
         // Create and store the new task log
