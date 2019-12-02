@@ -11,6 +11,7 @@ class Mail2Log {
     protected $tokenPath = '/srv/dotproject/token.json';
     protected $allowedDomains = ["debortoli.com.au"];
     private $user = 'me';
+    private $projectAddress = 'project@debortoli.com.au';
 
     function getClient() {
         $client = new Google_Client();
@@ -74,7 +75,104 @@ class Mail2Log {
     }
 
     /**
-     * Creates dotproject task log from email
+     * Get tags from list of email addresses
+     * @param array $addresses Email addresses to check
+     * @return array
+     */
+    protected function getAddressTags($addresses) {
+        $tags = [];
+        foreach ($addresses as $address) {
+            if (strpos($address, '<') !== false) {
+                $pos1 = strpos($address, "<")+1;
+                $pos2 = strpos($address, ">");
+                $length = abs($pos1 - $pos2);
+                $address = substr($address, $pos1, $length);
+            }
+            if (strpos($address, '+') !== false) {
+                $pos1 = strpos($address, '+')+1;
+                $pos2 = strpos($address, '@');
+                $length = abs($pos1 - $pos2);
+                $tag = substr($address, $pos1, $length);
+                $currentAddress = str_replace('+'.$tag, '', $address);
+                if ($currentAddress == $this->projectAddress)
+                    array_push($tags, $tag);
+            }
+        }
+        return $tags;
+    }
+
+    /**
+     * Gets specified var in given headers
+     * @param string $name Name of header var to get
+     * @param array $headers Email headers
+     * @return string
+     */
+    protected function getHeaderVar($name, $headers) {
+        foreach ($headers as $header) {
+            if ($header->getName() == $name)
+                return $header->getValue();
+        }
+    }
+
+    /**
+     * Remove arrow greater/less than symbols from email addresses
+     * @param string $address Email address to check
+     * @return string
+     */
+    protected function removeTags($address) {
+        if (strpos($address, '<') !== false) {
+            $pos1 = strpos($address, '<')+1;
+            $pos2 = strpos($address, '>');
+            $length = abs($pos1 - $pos2);
+            return substr($address, $pos1, $length);
+        } else
+            return $address;
+    }
+
+    /**
+     * Recursively check message parts to find the body text of the email
+     * @param array $parts Parts of the email
+     * @param string $type Which type of data to return
+     * @return string
+     */
+    protected function findBody($parts, $type='text/html') {
+        foreach ($parts as $part) {
+            if ($part['mimeType'] == $type)
+                return $part->getBody()->getData();
+            else {
+                if ($part->getParts()) {
+                    $recurse = $this->findBody($part->getParts(), $type);
+                    if (gettype($recurse) != 'array')
+                        return $recurse;
+                }
+            }
+        }
+    }
+
+    /**
+     * If an error occurs when creating task log, send email to sender
+     * @param string $from Sender email address
+     * @param string $to Recipient email address
+     * @param string $taskId Task id that user sent
+     * @param string $subject Subject from original email
+     */
+    protected function sendErrorReply($from, $to, $taskId, $subject) {
+        // Format email addresses
+        $pos1 = strpos($to, "<")+1;
+        $pos2 = strpos($to, ">");
+        $length = abs($pos1 - $pos2);
+        $toAddr = substr($to, $pos1, $length);
+        //Send email
+        $mail = new Mail;
+        $mail->Subject("DP ERROR - " . $subject);
+        $mail->Body("The task id you entered [$taskId] is not a valid task id.");
+        $mail->From($from);
+        $mail->To($toAddr);
+        $mail->Send();
+    }
+
+    /**
+     * Creates dotproject task log from email contents
      * @param string $taskId Task id sent in email
      * @param string $body Body of the email for task log desc
      * @param array $headers Google message headers
@@ -98,9 +196,16 @@ class Mail2Log {
         $subject = array_values(array_filter($headers, function($k) {
             return $k['name'] == 'Subject';
         }))[0]->getValue();
-        $fromAddress = array_values(array_filter($headers, function($k) {
+        $fromAddresses = array_values(array_filter($headers, function($k) {
             return $k['name'] == 'From';
-        }))[0]->getValue();
+        }));
+        $fromAddrValues = [];
+        foreach ($fromAddresses as $fromAddress) {
+            $pos1 = strpos($fromAddress->getValue(), "<")+1;
+            $pos2 = strpos($fromAddress->getValue(), ">");
+            $length = abs($pos1 - $pos2);
+            array_push($fromAddrValues, substr($fromAddress->getValue(), $pos1, $length));
+        }
         $toAddresses = array_values(array_filter($headers, function($k) {
             return $k['name'] == 'To';
         }));
@@ -108,13 +213,30 @@ class Mail2Log {
         foreach ($toAddresses as $toAddress) {
             array_push($toAddrValues, $toAddress->getValue());
         }
-        $newDate = date("Y-m-d H:i", substr($date, 0, 10));
-        $logBody = "<b>Automated log from email.</b><br>
-                    <b>Subject:</b> " . $subject . "<br>
-                    <b>From:</b> " . $fromAddress . "<br>
-                    <b>To:</b> " . implode(", ", $toAddrValues) . "<br>
-                    <b>Date:</b> " . $newDate . "<br>
-                    <b>Message:</b> " . $body;
+        $CcAddresses = explode(', ', $this->getHeaderVar('Cc', $headers));
+        $BccAddresses = explode(', ', $this->getHeaderVar('Bcc', $headers));
+        $CcAddr = [];
+        $BccAddr = [];
+        $ToAddr = [];
+        foreach ($CcAddresses as $CcAddress) {
+            array_push($CcAddr, $this->removeTags($CcAddress));
+        }
+        foreach ($BccAddresses as $BccAddress) {
+            array_push($BccAddr, $this->removeTags($BccAddress));
+        }
+        foreach ($toAddrValues as $toAddr) {
+            array_push($ToAddr, $this->removeTags($toAddr));
+        }
+        $newDate = date('Y-m-d H:i', substr($date, 0, 10));
+        // Creating the formatted task log description
+        $logBody = '<i>Automated log from email.</i><br>
+                    <b>Subject:</b> ' . $subject . '<br>
+                    <b>From:</b> ' . implode(', ', $fromAddrValues) . '<br>
+                    <b>To:</b> ' . implode(', ', $ToAddr) . '<br>
+                    <b>Cc:</b> ' . implode(', ', $CcAddr) . '<br>
+                    <b>Bcc:</b> ' . implode(', ', $BccAddr) . '<br>
+                    <b>Date:</b> ' . $newDate . '<br>
+                    <b>Message:</b> ' . $body;
         // Create and store the new task log
         $log = new CTaskLog();
         $log->task_log_task = intval($taskId);
@@ -127,47 +249,16 @@ class Mail2Log {
         return true;
     }
 
-    /**
-     * Recursively check message parts to find the body text of the email
-     * @param array $parts Parts of the email
-     * @param string $type Which type of data to return
-     * @return string
-     */
-    protected function findBody($parts, $type='text/plain') {
-        foreach ($parts as $part) {
-            if ($part['mimeType'] == $type)
-                return $part->getBody()->getData();
-            else {
-                if ($part->getParts()) {
-                    $recurse = $this->findBody($part->getParts(), 'text/html');
-                    if (gettype($recurse) != 'array')
-                        return $recurse;
-                }
-            }
-        }
-    }
 
     /**
-     * Gets addresses of people Cc'd into the email
-     * @param array $headers Email headers
-     * @return array
-     */
-    protected function getCcAddresses($headers) {
-        foreach ($headers as $header) {
-            if ($header->getName() == 'Cc')
-                return explode(', ', $header->getValue());
-        }
-    }
-
-    /**
-     * Retrieve next messages to be processed from inbox
+     * Retrieve next messages of a certain amount to be processed from inbox
      * @param Google_Service_Gmail $service Verified Google service instance
      * @param int $amount Amount of emails to retrieve
      * @return array
      */
     protected function getNextMessages($service, $amount) {
         $emails = array();
-        $labels = ["INBOX", "UNREAD"];
+        $labels = ['Label_4983233390187973438', 'UNREAD'];
         $results = $service->users_messages->listUsersMessages($this->user, ['labelIds' => $labels]);
         $messages = array_reverse($results->getMessages());
         // Loop through all unread messages until it finds one to process
@@ -186,7 +277,7 @@ class Mail2Log {
                     $fromAddress = array_values(array_filter($headers, function($k) {
                         return $k['name'] == "From";
                     }))[0]->getValue();
-                    $CCAddresses = $this->getCcAddresses($headers);
+                    $CCAddresses = explode(', ', $this->getHeaderVar('Cc', $headers));
 
                     // Set each email to read after checking
                     $mods = new Google_Service_Gmail_ModifyMessageRequest();
@@ -221,6 +312,7 @@ class Mail2Log {
         }
     }
 
+
     /**
      * Processes emails in inbox
      * @param Google_Service_Gmail $service Validated Google service
@@ -242,54 +334,32 @@ class Mail2Log {
             $subject = array_values(array_filter($messageHeaders, function($k) {
                 return $k['name'] == 'Subject';
             }));
-            $toAddresses = array_values(array_filter($messageHeaders, function($k) {
-                return $k['name'] == 'To';
-            }));
+            $toAddresses = explode(', ', $this->getHeaderVar('To', $messageHeaders));
+            $CcAddresses = explode(', ', $this->getHeaderVar('Cc', $messageHeaders));
+            $BccAddresses = explode(', ', $this->getHeaderVar('Bcc', $messageHeaders));
 
             // Getting body of email
             $body = $messageBody->getData();
             if (!$body)
-                $body = $this->findBody($payload->getParts());
+                $body = $this->findBody($payload->getParts(), 'text/html');
             $body = $this->decodeBody($body);
             // Checking if email address contains a task id
-            $toAddress = $toAddresses[0]->getValue();
-            if (strpos($toAddress, "+") !== false) {
-                $pos1 = strpos($toAddress, "+")+1;
-                $pos2 = strpos($toAddress, "@");
-                $length = abs($pos1 - $pos2);
-                $taskId = substr($toAddress, $pos1, $length);
-
-                $taskLog = $this->createTaskLog($taskId, $body, $messageHeaders, $date);
+            $tags = [];
+            if ($this->getAddressTags($toAddresses) != null)
+                array_push($tags, ...$this->getAddressTags($toAddresses));
+            if ($this->getAddressTags($CcAddresses) != null)
+                array_push($tags, ...$this->getAddressTags($CcAddresses));
+            if ($this->getAddressTags($BccAddresses) != null)
+                array_push($tags, ...$this->getAddressTags($BccAddresses));
+            foreach ($tags as $tag) {
+                $taskLog = $this->createTaskLog($tag, $body, $messageHeaders, $date);
                 if ($taskLog == false) {
                     $fromAddress = array_values(array_filter($messageHeaders, function($k) {
                         return $k['name'] == "From";
                     }))[0]->getValue();
                     return $this->sendErrorReply($toAddress, $fromAddress, $taskId, $subject[0]->getValue());
                 }
-            }
+            } 
         }
-    }
-
-    /**
-     * If error, send email to sender
-     * @param string $from Sender email address
-     * @param string $to Recipient email address
-     * @param string $taskId Task id that user sent
-     * @param string $subject Subject from original email
-     */
-    protected function sendErrorReply($from, $to, $taskId, $subject) {
-        // Format email addresses
-
-        $pos1 = strpos($to, "<")+1;
-        $pos2 = strpos($to, ">");
-        $length = abs($pos1 - $pos2);
-        $toAddr = substr($to, $pos1, $length);
-        //Send email
-        $mail = new Mail;
-        $mail->Subject("DP ERROR - " . $subject);
-        $mail->Body("The task id you entered [$taskId] is not a valid task id.");
-        $mail->From($from);
-        $mail->To($toAddr);
-        $mail->Send();
     }
 }

@@ -123,7 +123,7 @@ $task_types = dPgetSysVal('TaskType');
 
 // Creating task-specific email address
 // TODO: Have this set in system settings
-$currentAddress = 'dbwdptest@gmail.com';
+$currentAddress = 'project@debortoli.com.au';
 $pos = strpos($currentAddress, '@');
 $taskAddress = substr_replace($currentAddress, "+$task_id", $pos, 0);
 ?>
@@ -157,6 +157,15 @@ function delIt() {
 	}
 }
 <?php } ?>
+function copyAddress() {
+	var copyText = "<?php echo $taskAddress; ?>";
+	const el = document.createElement('textarea');
+	el.value = copyText;
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand("copy");
+	document.body.removeChild(el);
+}
 </script>
 
 <table border="0" cellpadding="4" cellspacing="0" width="100%" class="std">
@@ -246,10 +255,10 @@ function delIt() {
 			<td class="hilite" width="300"><?php echo $AppUI->_($task_types[$obj->task_type]);?></td>
 		</tr>
 		<tr>
-			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Address');?> :</td>
-			<td class="hilite" width="300"><?php echo $AppUI->_($taskAddress);?></td>
+			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Email');?> :</td>
+			<td class="hilite" width="300"><?php echo $AppUI->_($taskAddress);?><input class="button" type="button" value="copy" style="float: right;" onclick="copyAddress()"/></td>
+			
 		</tr>
-
 
 		</table>
 	</td>
@@ -335,9 +344,12 @@ function delIt() {
 		 </tr>
 		 <tr>
 		  <td class='hilite' colspan='3'>
-				<?php echo strip_tags($obj->task_description, '<br><p><span><b><strong><h1><h2><i><a><ol><ul><li><u><s><em>'); ?>
+				<?php 
+					echo filter_xss($obj->task_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i'));
+				?>
 		  </td>
 		</tr>
+
 <?php
 		$q->addTable('departments', 'd');
 		$q->addTable('task_departments', 't');
@@ -365,9 +377,10 @@ function delIt() {
 		    			}
 		    		?>
 		    	</td>
-		    </tr>
+			</tr>
 	 		<?php
 		}
+
 		
 		if ($AppUI->isActiveModule('contacts') && getPermission('contacts', 'view')) {
 			$q->addTable('contacts', 'c');
@@ -455,6 +468,7 @@ function delIt() {
 </table>
 
 <?php 
+
 $query_string = '?m=tasks&a=view&task_id=' . $task_id;
 $tabBox = new CTabBox('?m=tasks&a=view&task_id=' . $task_id, '', $tab);
 

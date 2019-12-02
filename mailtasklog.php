@@ -19,4 +19,4 @@ require_once($AppUI->getModuleClass('tasks'));
 $mailLog = new Mail2Log();
 $client = $mailLog->getClient();
 $service = $mailLog->getService($client);
-$mailLog->processMessage($service, 5);
+print_r($mailLog->processMessage($service, 5));

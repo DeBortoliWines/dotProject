@@ -92,7 +92,7 @@ $client = getClient();
 $service = new Google_Service_Gmail($client);
 // print_r("$service");
 $user = 'me';
-$labels = ["INBOX", "UNREAD"];
+$labels = ['Label_4983233390187973438', "UNREAD"];
 $results = $service->users_messages->listUsersMessages($user, ["labelIds" => $labels]);
 // $results = $service->users_messages->listUsersMessages($user);
 $allowedDomains = ["debortoli.com.au"];
@@ -134,10 +134,31 @@ function findBody($parts, $type='text/plain') {
 function getCcAddresses($headers) {
     foreach ($headers as $header) {
         if ($header->getName() == 'Cc')
-            return explode(', ', $header->getValue());
+            return $header->getValue();
     }
 }
 
+function getTags($addresses) {
+    $tags = [];
+    foreach ($addresses as $address) {
+        if (strpos($address, '+') !== false) {
+            $pos1 = strpos($address, '+')+1;
+            $pos2 = strpos($address, '@');
+            $length = abs($pos1 - $pos2);
+            $tag = substr($address, $pos1, $length);
+            $currentAddress = str_replace('+'.$tag, '', $address);
+            if ($currentAddress == $projectAddress)
+                array_push($tags, $tag);
+        }
+    }
+    return $tags;
+}
+
+if (strpos($toAddress, "+") !== false) {
+    $pos1 = strpos($toAddress, "+")+1;
+    $pos2 = strpos($toAddress, "@");
+    $length = abs($pos1 - $pos2);
+    $taskId = substr($toAddress, $pos1, $length);
 try {
         foreach($results->getMessages() as $mlist) {
             $message_id = $mlist->id;
@@ -165,7 +186,7 @@ try {
 
             $body = $payload->getBody();
             $headers = $payload->getHeaders();
-            print_r(getCcAddresses($headers));
+            
 
             // print_r($body['data']);
 
@@ -182,6 +203,7 @@ try {
             $CcAddresses = array_values(array_filter($headers, function($k) {
                 return $k['name'] = 'Cc';
             }));
+            print_r($subject[0]->getValue());
             
             $toAddress = $toAddresses[0]->getValue();
             $date = $single_message->getInternalDate();
@@ -239,7 +261,7 @@ try {
         
                         $mods = new Google_Service_Gmail_ModifyMessageRequest();
                         $mods->setAddLabelIds("READ");
-                        // $service->users_messages->modify($user, $message_id, $mods);
+                        $service->users_messages->modify($user, $message_id, $mods);
                     }
                 }
             }
