@@ -236,6 +236,7 @@ class Mail2Log {
         $log = new CTaskLog();
         $log->task_log_task = intval($taskId);
         $log->task_log_name = $subject;
+        $log->task_log_date = $newDate;
         $log->task_log_description = $logBody;
         $log->task_log_creator = intval($taskOwner);
         $log->task_log_hours = 1;
