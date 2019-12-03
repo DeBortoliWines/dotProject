@@ -25,6 +25,10 @@ Copyright (c) 2003-2005 The dotProject Development Team <core-developers@dotproj
 The full text of the GPL is in the COPYING file.
 
 
+Google API
+-------------------------------------------------------------------------------
+All files under lib/google-api-php-client-2.2.1 are licensed under Apache License 2.0
+as Google.
 
 Gnome Icons
 -------------------------------------------------------------------------------
