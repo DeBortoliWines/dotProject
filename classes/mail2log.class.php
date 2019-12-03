@@ -7,8 +7,8 @@ require_once($AppUI->getLibraryClass('google-api-php-client-2.2.1/vendor/autoloa
 require_once($AppUI->getModuleClass('tasks'));
 
 class Mail2Log {
-    protected $credentialsPath = '/srv/dotproject/credentials.json';
-    protected $tokenPath = '/srv/dotproject/token.json';
+    protected $credentialsPath = 'credentials.json';
+    protected $tokenPath = 'token.json';
     protected $allowedDomains = ["debortoli.com.au"];
     private $user = 'me';
     private $projectAddress = 'project@debortoli.com.au';
