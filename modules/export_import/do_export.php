@@ -44,7 +44,7 @@ $tasks = db_loadList($sql);
 $q->clear();
 
 $i=0;
-foreach($tasks as $task ){
+foreach($tasks as $task){
     $taskObj=new CTask();
     $taskObj->load($task['task_id']);
     $project_xml->Tasks->Task[$i]->ID=$taskObj->task_id;
@@ -58,11 +58,14 @@ foreach($tasks as $task ){
 	$project_xml->Tasks->Task[$i]->Priority=$taskObj->task_priority;
 	$project_xml->Tasks->Task[$i]->Cost= $taskObj->task_target_budget;
 	
-	
-	
-	$sql="SELECT dependencies_req_task_id FROM dotp_task_dependencies where dependencies_task_id=". $task['task_id'];
+	// Get task dependencies
+	$q->addTable('task_dependencies');
+	$q->addQuery('dependencies_req_task_id');
+	$q->addWhere('dependencies_task_id=' . $task['task_id']);
+	$sql = $q->prepare();
 	$dependencies = db_loadList($sql);
-	
+	$q->clear();
+
 	$j=0;
 	foreach($dependencies as $dep){
 		$project_xml->Tasks->Task[$i]->PredecessorLink[$j]->PredecessorUID= $dep["dependencies_req_task_id"];
