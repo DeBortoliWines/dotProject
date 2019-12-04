@@ -239,7 +239,7 @@ class Mail2Log {
         $log->task_log_date = $newDate;
         $log->task_log_description = $logBody;
         $log->task_log_creator = intval($taskOwner);
-        $log->task_log_hours = 1;
+        $log->task_log_hours = 0;
         $log->task_log_costcode = 1;
         $log->store();
         return true;
