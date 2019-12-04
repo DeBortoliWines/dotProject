@@ -111,8 +111,7 @@ foreach ($logs as $row) {
 	$s .= (int) $row['task_log_hours'] . ':' . $minutes . ')</td>';
 	$s .= '<td width="100">' . $AppUI->___($row['task_log_costcode']) . '</td>';
 	$s .= '<td><a name="tasklog' . @$row['task_log_id'] . '"></a>';
-		// $s .= $row['task_log_description'];
-		$s .= filter_xss($row['task_log_description'], $defined_allowed_tags=array('div', 'a', 'em', 'p', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i'));
+	$s .= filter_xss($row['task_log_description'], $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'h3', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i'));
 	$s .= '</td>';
 	$s .= "\n\t<td>";
 	if ($canDelete) {

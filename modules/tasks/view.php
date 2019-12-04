@@ -345,7 +345,7 @@ function copyAddress() {
 		 <tr>
 		  <td class='hilite' colspan='3'>
 				<?php 
-					echo filter_xss($obj->task_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i'));
+					echo filter_xss($obj->task_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'h3', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i'));
 				?>
 		  </td>
 		</tr>
