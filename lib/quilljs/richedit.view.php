@@ -23,6 +23,7 @@
     </span>
     <span class="ql-formats">
       <button class="ql-clean"></button>
+      <button class="ql-image"></button>
     </span>
   </div>
   <div id="<?php echo $this->id ?>-editor-container"><?php echo $this->content ?></div>
@@ -33,7 +34,7 @@
 <script>
 var quill = new Quill('#<?php echo $this->id ?>-editor-container', {
     modules: {
-        toolbar: '#<?php echo $this->id ?>-toolbar-container'
+        'toolbar': { container: '#<?php echo $this->id ?>-toolbar-container' }
     },
     placeholder: '',
     theme: 'snow'

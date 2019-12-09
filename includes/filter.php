@@ -31,7 +31,7 @@ function validate_utf8($string) {
   return (preg_match('/^./us', $string) == 1);
 }
 
-function filter_xss($string, $defined_allowed_tags=array('a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i')) {
+function filter_xss($string, $defined_allowed_tags=array('a', 'em', 'strong', 'cite', 'p', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i')) {
   // Only operate on valid UTF-8 strings. This is necessary to prevent cross
   // site scripting issues on Internet Explorer 6.
   if (!validate_utf8($string)) {
@@ -261,7 +261,7 @@ function _filter_xss_attributes($attr) {
 function filter_xss_bad_protocol($string, $decode = TRUE) {
   static $allowed_protocols;
   if (!isset($allowed_protocols)) {
-    $allowed_protocols = array_flip(dPgetConfig('filter_allowed_protocols', array('http', 'https', 'ftp', 'news', 'nntp', 'tel', 'telnet', 'mailto', 'irc', 'ssh', 'sftp', 'webcal', 'rtsp')));
+    $allowed_protocols = array_flip(dPgetConfig('filter_allowed_protocols', array('data', 'http', 'https', 'ftp', 'news', 'nntp', 'tel', 'telnet', 'mailto', 'irc', 'ssh', 'sftp', 'webcal', 'rtsp')));
   }
 
   // Get the plain text representation of the attribute value (i.e. its meaning).
@@ -359,4 +359,3 @@ function _decode_entities($prefix, $codepoint, $original, &$html_entities, &$exc
     return $str;
   }
 }
-
