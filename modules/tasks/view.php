@@ -138,6 +138,8 @@ if ($canEdit) {
 
 function updateTask() {
 	var f = document.editFrm;
+	f.task_log_description.value = quill.container.innerHTML;
+
 	if (f.task_log_description.value.length < 1) {
 		alert("<?php echo $AppUI->_('tasksComment', UI_OUTPUT_JS);?>");
 		f.task_log_description.focus();
@@ -344,9 +346,11 @@ function copyAddress() {
 		 </tr>
 		 <tr>
 		  <td class='hilite' colspan='3'>
-				<?php 
+				<div class="task-content">
+					<?php 
 					echo filter_xss($obj->task_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i', 'img'));
-				?>
+					?>
+				</div>
 		  </td>
 		</tr>
 
@@ -518,6 +522,89 @@ if ($tabBox_show == 1) {
 }
 ?>
 <style>
+.task-content img {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.task-content img:hover {
+	opacity: 0.7;
+}
+
+/* The Modal (background) */
+#task-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+#task-modal #task-modal-image {
+  margin: auto;
+  display: block;
+  object-fit: contain;
+  max-width: 90%;
+  max-height: 85%;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#task-modal #task-modal-caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+#task-modal #task-modal-image, #task-modal #task-modal-caption { 
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+#task-modal #task-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#task-modal #task-modal-close:hover,
+#task-modal #task-modal-close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  #task-modal #task-modal-image {
+    width: 100%;
+  }
+}
+
+
+
 .ql-size-large {
     font-size: 1.5em;
 }
@@ -543,5 +630,34 @@ if ($tabBox_show == 1) {
     text-align: justify;
 }
 
-</style>
 
+.task-content img {
+	max-width: 30%;
+	max-height: 100%;
+}
+</style>
+<div id="task-modal" class="modal">
+  <span id="task-modal-close">&times;</span>
+  <img id="task-modal-image">
+  <div id="task-modal-caption"></div>
+</div>
+
+<script>
+(function() {
+	var modal = document.getElementById('task-modal');
+	var modalImg = document.getElementById('task-modal-image');
+	var modalSpan = document.getElementById('task-modal-close');
+
+	var imgs = document.querySelectorAll('.task-content img');
+	for(var i = 0; i < imgs.length; i++) {
+		imgs[i].addEventListener('click', function(e) {
+			
+			modal.style.display = 'block';
+			modalImg.src = e.target.src;
+		})
+	}
+	modalSpan.onclick = function() {
+		modal.style.display = 'none';
+	}
+})();
+</script>

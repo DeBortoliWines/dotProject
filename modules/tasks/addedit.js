@@ -81,6 +81,8 @@ function submitIt(form){
 	for (var i = 0; i < subForm.length; i++) {
 		if (!subForm[i].check())
 			return false;
+		if (subForm[i].form.task_description !== undefined)
+			subForm[i].form.task_description.value = quill.container.innerHTML;
 		// Save the subform, this may involve seeding this form
 		// with data
 		subForm[i].save();
