@@ -185,7 +185,7 @@ class Mail2Log {
         $q->addTable("tasks");
         $q->addQuery("task_owner", "task_dynamic");
         $q->addWhere("task_id = " . $taskId);
-        $sql = $q->loadResult();
+        $sql = $q->loadHash();
         $q->clear();
         // If the query cannot find the task owner, the task must not exist
         if ($sql['task_owner'] == null) {
