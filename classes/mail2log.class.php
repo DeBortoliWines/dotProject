@@ -156,16 +156,16 @@ class Mail2Log {
      * @param string $taskId Task id that user sent
      * @param string $subject Subject from original email
      */
-    protected function sendErrorReply($from, $to, $taskId, $subject) {
+    protected function sendErrorReply($from, $to, $taskId, $subject, $error) {
         // Format email addresses
-        $pos1 = strpos($to, "<")+1;
-        $pos2 = strpos($to, ">");
+        $pos1 = strpos($to, '<')+1;
+        $pos2 = strpos($to, '>');
         $length = abs($pos1 - $pos2);
         $toAddr = substr($to, $pos1, $length);
         //Send email
         $mail = new Mail;
-        $mail->Subject("DP ERROR - " . $subject);
-        $mail->Body("The task id you entered [$taskId] is not a valid task id.");
+        $mail->Subject('DP ERROR - ' . $subject);
+        $mail->Body('Could not create task log for task' . $taskId . ': ' . $error);
         $mail->From($from);
         $mail->To($toAddr);
         $mail->Send();
@@ -183,13 +183,16 @@ class Mail2Log {
         // Get owner of task using the task id
         $q = new DBQuery;
         $q->addTable("tasks");
-        $q->addQuery("task_owner");
+        $q->addQuery("task_owner", "task_dynamic");
         $q->addWhere("task_id = " . $taskId);
-        $taskOwner = $q->loadResult();
+        $sql = $q->loadHash();
         $q->clear();
         // If the query cannot find the task owner, the task must not exist
-        if ($taskOwner == null) {
-            return false;
+        if ($sql['task_owner'] == null) {
+            return "Task does not exist";
+        }
+        elseif ($sql['task_dynamic'] == 1) {
+            return "Task is a dynamic task";
         }
         
         // Getting needed data from the message headers
@@ -349,11 +352,11 @@ class Mail2Log {
                 array_push($tags, ...$this->getAddressTags($BccAddresses));
             foreach ($tags as $tag) {
                 $taskLog = $this->createTaskLog($tag, $body, $messageHeaders, $date);
-                if ($taskLog == false) {
+                if ($taskLog != true) {
                     $fromAddress = array_values(array_filter($messageHeaders, function($k) {
                         return $k['name'] == "From";
                     }))[0]->getValue();
-                    return $this->sendErrorReply($toAddress, $fromAddress, $taskId, $subject[0]->getValue());
+                    return $this->sendErrorReply($toAddress, $fromAddress, $taskId, $subject[0]->getValue(), $taskLog);
                 }
             } 
         }
