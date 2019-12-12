@@ -386,7 +386,7 @@ function calcFinish(f) {
 	var formattedDay = (endDate.getDate() < 10) ? `0${endDate.getDate()}` : endDate.getDate();
 	var formattedHours = (endDate.getHours() < 10) ? `0${endDate.getHours()}` : endDate.getHours();
 	var formattedMinutes = (endDate.getMinutes() < 10) ? `0${endDate.getMinutes()}` : endDate.getMinutes();
-	var formattedDate = `${endDate.getFullYear()}-${formattedMonth}-${formattedDay}T${formattedHours}:${formattedMinutes}:00`;
+	var formattedDate = `${endDate.getFullYear()}-${formattedMonth}-${formattedDay}T${formattedHours}:${formattedMinutes}`;
 	f.task_end_date.value = formattedDate;
 }
 
