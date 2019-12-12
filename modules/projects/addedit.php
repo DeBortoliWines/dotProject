@@ -156,11 +156,18 @@ if (f.project_short_name.value.length == 0) {
 	f.project_short_name.value = f.project_name.value.substr(0,x);
 }
 }
+function enableBtn() {
+	var btns = document.getElementsByClassName('button');
+	Array.prototype.forEach.call(btns, btn => {
+		if (btn.disabled === true && btn.onclick.toString().includes('this.disabled'))
+			btn.disabled = false;
+	});
+}
 
 function submitIt() {
 	var f = document.editFrm;
 	var msg = '';
-
+	f.project_description.value = quill.container.innerHTML;
 	/*
 	if (f.project_end_date.value > 0 && f.project_end_date.value < f.project_start_date.value) {
 		msg += "\n<?php echo $AppUI->_('projectsBadEndDate1');?>";
@@ -181,6 +188,7 @@ function submitIt() {
 	if (msg.length < 1) {
 		f.submit();
 	} else {
+		enableBtn();
 		alert(msg);
 	}
 }
@@ -240,7 +248,7 @@ function setDepartment(department_id_string) {
 		<input class="button" type="button" name="cancel2" value="<?php echo $AppUI->_('cancel');?>" onclick="javascript:if (confirm('Are you sure you want to cancel.')) {location.href = '?m=projects';}" />
 	</td>
 	<td align="right">
-		<input class="button" type="button" name="btnFuseAction2" value="<?php echo $AppUI->_('submit');?>" onclick="javascript:submitIt();" />
+		<input class="button" type="button" name="btnFuseAction2" value="<?php echo $AppUI->_('submit');?>" onclick="this.disabled=true; javascript:submitIt();" />
 	</td>
 </tr>
 <tr>
@@ -441,7 +449,7 @@ function setDepartment(department_id_string) {
 		<input class="button" type="button" name="cancel" value="<?php echo $AppUI->_('cancel');?>" onclick="javascript:if (confirm('Are you sure you want to cancel.')) {location.href = '?m=projects';}" />
 	</td>
 	<td align="right">
-		<input class="button" type="button" name="btnFuseAction" value="<?php echo $AppUI->_('submit');?>" onclick="javascript:submitIt();" />
+		<input class="button" type="button" name="btnFuseAction" value="<?php echo $AppUI->_('submit');?>" onclick="this.disabled=true; javascript:submitIt();" />
 	</td>
 </tr>
 </table>

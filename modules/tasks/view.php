@@ -136,17 +136,28 @@ $taskAddress = substr_replace($currentAddress, "+$task_id", $pos, 0);
 if ($canEdit) {
 ?>
 
+function enableBtn() {
+	var btns = document.getElementsByClassName('button');
+	Array.prototype.forEach.call(btns, btn => {
+		if (btn.disabled === true && btn.onclick.toString().includes('this.disabled'))
+			btn.disabled = false;
+	});
+}
+
 function updateTask() {
 	var f = document.editFrm;
 	f.task_log_description.value = quill.container.innerHTML;
 
 	if (f.task_log_description.value.length < 1) {
+		enableBtn();
 		alert("<?php echo $AppUI->_('tasksComment', UI_OUTPUT_JS);?>");
 		f.task_log_description.focus();
 	} else if (isNaN(parseInt(f.task_percent_complete.value+0))) {
+		enableBtn();
 		alert("<?php echo $AppUI->_('tasksPercent', UI_OUTPUT_JS);?>");
 		f.task_percent_complete.focus();
 	} else if (f.task_percent_complete.value  < 0 || f.task_percent_complete.value > 100) {
+		enableBtn();
 		alert("<?php echo $AppUI->_('tasksPercentValue', UI_OUTPUT_JS);?>");
 		f.task_percent_complete.focus();
 	} else {
@@ -522,10 +533,39 @@ if ($tabBox_show == 1) {
 }
 ?>
 <style>
+.ql-size-large {
+    font-size: 1.5em;
+}
+.ql-size-small {
+    font-size: 0.75em;
+}
+.ql-size-huge {
+    font-size: 2.5em;
+}
+.ql-font-monospace {
+    font-family: Monaco, Courier New, monospace;
+}
+.ql-font-serif {
+    font-family: Georgia, Times New Roman, serif;
+}
+.ql-align-center {
+    text-align: center;
+}
+.ql-align-right {
+    text-align: right;
+}
+.ql-align-justify {
+    text-align: justify;
+}
+</style>
+
+<style>
 .task-content img {
   border-radius: 5px;
   cursor: pointer;
   transition: 0.3s;
+  max-width: 30%;
+  max-height: 100%;
 }
 
 .task-content img:hover {
@@ -602,40 +642,8 @@ if ($tabBox_show == 1) {
     width: 100%;
   }
 }
-
-
-
-.ql-size-large {
-    font-size: 1.5em;
-}
-.ql-size-small {
-    font-size: 0.75em;
-}
-.ql-size-huge {
-    font-size: 2.5em;
-}
-.ql-font-monospace {
-    font-family: Monaco, Courier New, monospace;
-}
-.ql-font-serif {
-    font-family: Georgia, Times New Roman, serif;
-}
-.ql-align-center {
-    text-align: center;
-}
-.ql-align-right {
-    text-align: right;
-}
-.ql-align-justify {
-    text-align: justify;
-}
-
-
-.task-content img {
-	max-width: 30%;
-	max-height: 100%;
-}
 </style>
+
 <div id="task-modal" class="modal">
   <span id="task-modal-close">&times;</span>
   <img id="task-modal-image">

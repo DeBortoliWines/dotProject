@@ -70,11 +70,20 @@ function setContacts(contact_id_string){
 	selected_contacts_id = contact_id_string;
 }
 
+function enableBtn() {
+	var btns = document.getElementsByClassName('button');
+	Array.prototype.forEach.call(btns, btn => {
+		if (btn.disabled === true && btn.onclick.toString().includes('this.disabled'))
+			btn.disabled = false;
+	});
+}
+
 function submitIt(form){
 	if (form.task_name.value.length < 3) {
-			alert(task_name_msg);
-			form.task_name.focus();
-			return false;
+		enableBtn();
+		alert(task_name_msg);
+		form.task_name.focus();
+		return false;
 	}
 
 	// Check the sub forms
@@ -304,6 +313,7 @@ function calcDuration(f) {
 		}
 
 	if (s > e) {
+		enableBtn();
 		alert('End date is before start date!');
 		return false;
 	} else {
@@ -447,6 +457,7 @@ function fd_seed()
 function checkDates(form, id) {
 	if (can_edit_time_information && check_task_dates) {
 		if (!form.task_start_date.value) {
+			enableBtn();
 			alert(task_start_msg);
 			show_tab(id);
 			// If the start date is not hidden or disabled, focus
@@ -456,6 +467,7 @@ function checkDates(form, id) {
 			return false;
 		}
 		if (!form.task_end_date.value) {
+			enableBtn();
 			alert(task_end_msg);
 			show_tab(id);
 			if (form.task_end_date.type != 'hidden' && ! form.task_end_date.disabled) {
@@ -464,10 +476,12 @@ function checkDates(form, id) {
 			return false;
 		}
 		if (!form.task_start_date.checkValidity()) {
+			enableBtn();
 			alert(task_start_msg);
 			return false;
 		}
 		if (!form.task_end_date.checkValidity()) {
+			enableBtn();
 			alert(task_end_msg);
 			return false;
 		}
@@ -475,6 +489,7 @@ function checkDates(form, id) {
 		var start = new Date(form.task_start_date.value);
 		var end = new Date(form.task_end_date.value);
 		if (start > end) {
+			enableBtn();
 			alert('End date is before start date!');
 			return false;
 		}

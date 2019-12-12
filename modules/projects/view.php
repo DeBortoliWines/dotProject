@@ -320,7 +320,11 @@ echo @$obj->project_demo_url; ?></a></td>
 			<table cellspacing="0" cellpadding="2" border="0" width="100%">
 			<tr>
 				<td class="hilite">
-					<?php echo str_replace(chr(10), "<br>", strip_tags($obj->project_description, '<br><p><span><b><strong><h1><h2><i><a><ol><ul><li><u><s><em>')); ?>
+					<div class="project-content">
+						<?php 
+						echo filter_xss($obj->project_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i', 'img'));
+						?>
+					</div>
 				</td>
 			</tr>
 			</table>
@@ -510,3 +514,113 @@ $tabBox->show();
 
 </style>
 
+<style>
+.project-content img {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 30%;
+  max-height: 100%;
+}
+
+.project-content img:hover {
+	opacity: 0.7;
+}
+
+/* The Modal (background) */
+#project-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+#project-modal #project-modal-image {
+  margin: auto;
+  display: block;
+  object-fit: contain;
+  max-width: 90%;
+  max-height: 85%;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#project-modal #project-modal-caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+#project-modal #project-modal-image, #project-modal #project-modal-caption { 
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+#project-modal #project-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#project-modal #project-modal-close:hover,
+#project-modal #project-modal-close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  #project-modal #project-modal-image {
+    width: 100%;
+  }
+}
+</style>
+
+<div id="project-modal" class="modal">
+  <span id="project-modal-close">&times;</span>
+  <img id="project-modal-image">
+  <div id="project-modal-caption"></div>
+</div>
+
+<script>
+(function() {
+	var modal = document.getElementById('project-modal');
+	var modalImg = document.getElementById('project-modal-image');
+	var modalSpan = document.getElementById('project-modal-close');
+
+	var imgs = document.querySelectorAll('.project-content img');
+	for(var i = 0; i < imgs.length; i++) {
+		imgs[i].addEventListener('click', function(e) {
+			
+			modal.style.display = 'block';
+			modalImg.src = e.target.src;
+		})
+	}
+	modalSpan.onclick = function() {
+		modal.style.display = 'none';
+	}
+})();
+</script>
