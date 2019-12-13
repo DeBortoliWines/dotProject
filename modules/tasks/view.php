@@ -267,11 +267,12 @@ function copyAddress() {
 			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Type');?> :</td>
 			<td class="hilite" width="300"><?php echo $AppUI->_($task_types[$obj->task_type]);?></td>
 		</tr>
-		<tr>
-			<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Email');?> :</td>
-			<td class="hilite" width="300"><?php echo $AppUI->_($taskAddress);?><input class="button" type="button" value="copy" style="float: right;" onclick="copyAddress()"/></td>
-			
-		</tr>
+		<?php if ($obj->task_dynamic != 1) { ?>
+			<tr>
+				<td align="right" nowrap="nowrap"><?php echo $AppUI->_('Task Email');?> :</td>
+				<td class="hilite" width="300"><?php echo $AppUI->_($taskAddress);?><input class="button" type="button" value="copy" style="float: right;" onclick="copyAddress()"/></td>
+			</tr>
+		<?php } ?>
 
 		</table>
 	</td>
