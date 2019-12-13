@@ -4,6 +4,7 @@ if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
 
+include_once("./modules/tasks/config.php");
 require_once($AppUI->getSystemClass('libmail'));
 require_once($AppUI->getSystemClass('dp'));
 require_once($AppUI->getModuleClass('projects'));
@@ -125,11 +126,16 @@ class CTask extends CDpObject
 	
 	// overload check
 	function check() {
-		global $AppUI;
+		global $AppUI, $TASKS_CONFIG;
 		
 		if ($this->task_id === NULL) {
 			return 'task id is NULL';
 		}
+
+		if (intval(strlen($this->task_description)) > intval($TASKS_CONFIG['description_max_length'])) {
+			return 'BadParent_DescriptionLimit';
+		}
+
 		// ensure changes to checkboxes are honoured
 		$this->task_milestone = intval($this->task_milestone);
 		$this->task_dynamic	  = intval($this->task_dynamic);
@@ -2524,6 +2530,12 @@ class CTaskLog extends CDpObject
 	
 	// overload check method
 	function check() {
+		global $TASKS_CONFIG;
+
+		if (intval(strlen($this->task_log_description)) > intval($TASKS_CONFIG['description_max_length'])) {
+			return ERR_DescriptionLimit;
+		}
+
 		$this->task_log_hours = sprintf('%.3F', (float) $this->task_log_hours);
 		return NULL;
 	}

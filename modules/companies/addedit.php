@@ -62,9 +62,19 @@ $titleBlock->show();
 ?>
 
 <script language="javascript" >
+function enableBtn() {
+	var btns = document.getElementsByClassName('button');
+	Array.prototype.forEach.call(btns, btn => {
+		if (btn.disabled === true && btn.onclick.toString().includes('this.disabled'))
+			btn.disabled = false;
+	});
+}
+
 function submitIt() {
 	var form = document.changeclient;
+	form.company_description.value = quill.container.innerHTML;
 	if (form.company_name.value.length < 3) {
+		enableBtn()
 		alert("<?php echo $AppUI->_('companyValidName', UI_OUTPUT_JS); ?>");
 		form.company_name.focus();
 	} else {
@@ -216,7 +226,7 @@ $custom_fields->printHTML();
 	<td><input type="button" value="<?php 
 echo $AppUI->_('back'); ?>" class="button" onclick="javascript:history.back(-1);" /></td>
 	<td align="right"><input type="button" value="<?php 
-echo $AppUI->_('submit'); ?>" class="button" onclick="javascript:submitIt()" /></td>
+echo $AppUI->_('submit'); ?>" class="button" onclick="this.disabled=true; javascript:submitIt()" /></td>
 </tr>
 
 </table>

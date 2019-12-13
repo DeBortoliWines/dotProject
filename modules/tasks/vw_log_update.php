@@ -341,7 +341,7 @@ if ($AppUI->isActiveModule('contacts') && getPermission('contacts', 'view')) {
       <tr>
         <td colspan="2" valign="bottom" align="right">
           <input type="button" class="button" value="<?php 
-echo $AppUI->_('update task'); ?>" onclick="updateTask()" />
+echo $AppUI->_('update task'); ?>" onclick="this.disabled=true; updateTask()" />
         </td>
       </tr>
     </table>

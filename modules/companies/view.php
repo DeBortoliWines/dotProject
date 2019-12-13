@@ -174,7 +174,11 @@ echo htmlspecialchars(@$obj->company_primary_url); ?></a>
 		<table cellspacing="0" cellpadding="2" border="0" width="100%" summary="company description">
 		<tr>
 			<td class="hilite">
-				<?php echo strip_tags($obj->company_description, '<br><p><span><b><strong><h1><h2><i><a><ol><ul><li><u><s><em>') ?>
+			<div class="company-content">
+						<?php 
+						echo filter_xss($obj->company_description, $defined_allowed_tags=array('div', 'p', 'span', 'h1', 'h2', 'u', 's', 'a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'td', 'tbody', 'thead', 'br', 'b', 'i', 'img'));
+						?>
+					</div>
 			</td>
 		</tr>
 		
@@ -230,3 +234,113 @@ $tabBox->show();
 
 </style>
 
+<style>
+.company-content img {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 30%;
+  max-height: 100%;
+}
+
+.company-content img:hover {
+	opacity: 0.7;
+}
+
+/* The Modal (background) */
+#company-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+#company-modal #company-modal-image {
+  margin: auto;
+  display: block;
+  object-fit: contain;
+  max-width: 90%;
+  max-height: 85%;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#company-modal #company-modal-caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+#company-modal #company-modal-image, #company-modal #company-modal-caption { 
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+#company-modal #company-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#company-modal #company-modal-close:hover,
+#company-modal #company-modal-close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  #company-modal #company-modal-image {
+    width: 100%;
+  }
+}
+</style>
+
+<div id="company-modal" class="modal">
+  <span id="company-modal-close">&times;</span>
+  <img id="company-modal-image">
+  <div id="company-modal-caption"></div>
+</div>
+
+<script>
+(function() {
+	var modal = document.getElementById('company-modal');
+	var modalImg = document.getElementById('company-modal-image');
+	var modalSpan = document.getElementById('company-modal-close');
+
+	var imgs = document.querySelectorAll('.company-content img');
+	for(var i = 0; i < imgs.length; i++) {
+		imgs[i].addEventListener('click', function(e) {
+			
+			modal.style.display = 'block';
+			modalImg.src = e.target.src;
+		})
+	}
+	modalSpan.addEventListener('click', function() {
+		modal.style.display = 'none';
+	});
+})();
+</script>

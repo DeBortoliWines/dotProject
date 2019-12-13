@@ -320,7 +320,7 @@ echo $AppUI->getPlace(); ?>';}" />
 			</td>
 			<td>
 				<input class="button" type="button" name="btnFuseAction" value="<?php 
-echo $AppUI->_('save'); ?>" onclick="javascript:submitIt(document.editFrm);" />
+echo $AppUI->_('save'); ?>" onclick="this.disabled=true; javascript:submitIt(document.editFrm);" />
 			</td>
 		</tr>
 		</table>
@@ -360,7 +360,7 @@ echo $AppUI->getPlace(); ?>';}" />
 			</td>
 			<td>
 				<input class="button" type="button" name="btnFuseAction2" value="<?php 
-echo $AppUI->_('save'); ?>" onclick="javascript:submitIt(document.editFrm);" />
+echo $AppUI->_('save'); ?>" onclick="this.disabled=true; javascript:submitIt(document.editFrm);" />
 			</td>
 		</tr>
 		</table>
