@@ -10,6 +10,7 @@ if (!defined('DP_BASE_DIR')) {
 */
 
 require_once($AppUI->getSystemClass ('dp'));
+include_once('./modules/tasks/config.php');
 
 /**
  *	Companies Class
@@ -49,6 +50,11 @@ class CCompany extends CDpObject {
     
 // overload check
 	function check() {
+		global $COMPANIES_CONFIG;
+
+		if ($this->company_description > intval($COMPANIES_CONFIG['description_max_length'])) {
+			return 'Company description is too long';
+		}
 		if ($this->company_id === NULL) {
 			return 'company id is NULL';
 		}
