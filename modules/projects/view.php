@@ -619,8 +619,8 @@ $tabBox->show();
 			modalImg.src = e.target.src;
 		})
 	}
-	modalSpan.onclick = function() {
+	modalSpan.addEventListener('click', function() {
 		modal.style.display = 'none';
-	}
+	});
 })();
 </script>

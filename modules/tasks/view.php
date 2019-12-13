@@ -662,10 +662,10 @@ if ($tabBox_show == 1) {
 			
 			modal.style.display = 'block';
 			modalImg.src = e.target.src;
-		})
+		});
 	}
-	modalSpan.onclick = function() {
+	modalSpan.addEventListener('click', function() {
 		modal.style.display = 'none';
-	}
+	});
 })();
 </script>
