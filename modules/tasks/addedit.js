@@ -81,7 +81,6 @@ function enableBtn() {
 function submitIt(form){
 	if (form.task_name.value.length < 3) {
 		enableBtn();
-		debugger
 		alert(task_name_msg);
 		form.task_name.focus();
 		return false;

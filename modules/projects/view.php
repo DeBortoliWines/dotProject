@@ -204,6 +204,7 @@ $titleBlock->addCrumb('?m=projects&amp;a=reports&amp;project_id=' . $project_id,
 $titleBlock->show();
 ?>
 <script  language="javascript">
+console.log("<?php echo memory_get_usage(); ?>");
 <?php
 //security improvement:
 //some javascript functions may not appear on client side in case of user not having write permissions

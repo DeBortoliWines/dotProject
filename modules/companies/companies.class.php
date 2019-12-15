@@ -52,7 +52,7 @@ class CCompany extends CDpObject {
 	function check() {
 		global $COMPANIES_CONFIG;
 
-		if ($this->company_description > intval($COMPANIES_CONFIG['description_max_length'])) {
+		if (strlen($this->company_description) > intval($COMPANIES_CONFIG['description_max_length'])) {
 			return 'Company description is too long';
 		}
 		if ($this->company_id === NULL) {
