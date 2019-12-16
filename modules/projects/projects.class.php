@@ -14,6 +14,7 @@ require_once ($AppUI->getSystemClass('date'));
 require_once ($AppUI->getModuleClass('tasks'));
 require_once ($AppUI->getModuleClass('companies'));
 require_once ($AppUI->getModuleClass('departments'));
+include_once("./modules/projects/config.php");
 
 /**
  * The Project Class
@@ -49,6 +50,11 @@ class CProject extends CDpObject {
 	}
 
 	function check() {
+		global $PROJECTS_CONFIG;
+		if (strlen($this->project_description) > intval($PROJECTS_CONFIG['description_max_length'])) {
+			return 'Project description too long.';
+		}
+
 		if (empty($this->project_name)) {
 			return 'project name cannot be blank';
 		}
