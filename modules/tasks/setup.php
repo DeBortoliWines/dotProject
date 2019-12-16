@@ -3,7 +3,7 @@
 // MODULE CONFIGURATION DEFINITION
 $config = array();
 $config['mod_name'] = 'Tasks';
-$config['mod_version'] = '1.0';
+$config['mod_version'] = '1.0.0';
 $config['mod_directory'] = 'tasks';
 $config['mod_setup_class'] = 'Tasks';
 $config['mod_type'] = 'user';
@@ -16,10 +16,6 @@ if (@$a == 'setup')
     echo dPshowModuleConfig($config);
 
 class Tasks {
-    function upgrade() {
-        return null;
-    }
-    
     function configure() {		// configure this module
         global $AppUI;
         $AppUI->redirect('m=tasks&a=configure');	// load module specific configuration page
