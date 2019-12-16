@@ -146,7 +146,12 @@ function enableBtn() {
 
 function updateTask() {
 	var f = document.editFrm;
-	f.task_log_description.value = quill.container.innerHTML;
+	var content = quill.container.innerHTML;
+	if (content.includes('contenteditable="true"'))
+		f.task_log_description.value = content.replace('contenteditable="true"', '');
+	else 
+		f.task_log_description.value = content;
+	
 
 	if (f.task_log_description.value.length < 1) {
 		enableBtn();

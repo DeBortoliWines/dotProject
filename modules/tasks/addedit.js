@@ -90,8 +90,13 @@ function submitIt(form){
 	for (var i = 0; i < subForm.length; i++) {
 		if (!subForm[i].check())
 			return false;
-		if (subForm[i].form.task_description !== undefined)
-			subForm[i].form.task_description.value = quill.container.innerHTML;
+		if (subForm[i].form.task_description !== undefined) {
+			var content = quill.container.innerHTML;
+			if (content.includes('contenteditable="true"'))
+				subForm[i].form.task_description.value = content.replace('contenteditable="true"', '');
+			else 
+				subForm[i].form.task_description.value = content;
+		}
 		// Save the subform, this may involve seeding this form
 		// with data
 		subForm[i].save();

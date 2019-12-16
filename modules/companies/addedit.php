@@ -72,7 +72,11 @@ function enableBtn() {
 
 function submitIt() {
 	var form = document.changeclient;
-	form.company_description.value = quill.container.innerHTML;
+	var content = quill.container.innerHTML;
+	if (content.includes('contenteditable="true"'))
+		form.company_description.value = content.replace('contenteditable="true"', '');
+	else 
+		form.company_description.value = content;
 	if (form.company_name.value.length < 3) {
 		enableBtn()
 		alert("<?php echo $AppUI->_('companyValidName', UI_OUTPUT_JS); ?>");

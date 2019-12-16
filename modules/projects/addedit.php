@@ -167,7 +167,11 @@ function enableBtn() {
 function submitIt() {
 	var f = document.editFrm;
 	var msg = '';
-	f.project_description.value = quill.container.innerHTML;
+	var content = quill.container.innerHTML;
+	if (content.includes('contenteditable="true"'))
+		f.project_description.value = content.replace('contenteditable="true"', '');
+	else 
+		f.project_description.value = content;
 	/*
 	if (f.project_end_date.value > 0 && f.project_end_date.value < f.project_start_date.value) {
 		msg += "\n<?php echo $AppUI->_('projectsBadEndDate1');?>";
