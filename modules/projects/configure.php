@@ -24,6 +24,12 @@ $config_options = array(
         'value' => '65,535',
         'type' => 'text'
     ),
+    'always_show_archived' => array(
+        'description' => $AppUI->_('Show Archived Projects In All Tab'),
+        'value' => '1',
+        'type' => 'radio',
+    	'buttons' => array (1 => $AppUI->_('Yes'), 0 => $AppUI->_('No'))
+    )
 );
 
 // If this is a submitted page, overwrite the config file
