@@ -109,7 +109,7 @@ class Mail2Log {
      */
     protected function getHeaderVar($name, $headers) {
         foreach ($headers as $header) {
-            if ($header->getName() == $name)
+            if (strtolower($header->getName()) == strtolower($name))
                 return $header->getValue();
         }
     }
