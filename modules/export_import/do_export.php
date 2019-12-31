@@ -57,6 +57,7 @@ foreach($tasks as $task){
     $project_xml->Tasks->Task[$i]->PercentComplete=$taskObj->task_percent_complete;
 	$project_xml->Tasks->Task[$i]->Priority=$taskObj->task_priority;
 	$project_xml->Tasks->Task[$i]->Cost= $taskObj->task_target_budget;
+	$project_xml->Tasks->Task[$i]->Contact =  $user->user_username;
 	
 	// Get task dependencies
 	$q->addTable('task_dependencies');
