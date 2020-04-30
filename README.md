@@ -1,3 +1,7 @@
+# UPDATE 20200430: RETIRED FROM ACTIVE DEVELOPMENT
+
+This repository will remain here for the time being. 
+
 # dotProject
 
 dotProject is an open source project management system written in PHP.
